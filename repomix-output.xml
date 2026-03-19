@@ -1,0 +1,989 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+docs/
+  adr/
+    _ひな形-ADR-xxx-___.md
+    ADR-001-Phase1の題材として経費申請システムを採用
+    ADR-002-requestとapprovalの関係性.md
+    ADR-003-roleとapproval_policyの関係性.md
+    ADR-004-役職を認可の根拠にすべきか.md
+    ADR-005-requestを再申請したとき、requestは新規作成されるか.md
+    ADR-006-監査ログの重要度.md
+  design-overview.md
+  domain-rules.md
+  temp.md
+.gitignore
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="docs/adr/_ひな形-ADR-xxx-___.md">
+# ADR-XXX: <タイトル>
+
+## ステータス
+- Proposed / Accepted / Rejected / Deprecated / Superseded
+
+## 日付
+- YYYY-MM-DD
+
+## コンテキスト（背景・課題）
+- なぜこの意思決定が必要になったのか
+- 現状の問題点
+- 制約条件（技術・組織・コストなど）
+
+## 決定（Decision）
+- 採用するアーキテクチャ / 技術 / 方針
+- 結論を簡潔に明記
+
+## 根拠（Rationale）
+- なぜこの選択をしたのか
+- 他案と比較した理由
+- トレードオフ
+
+## 検討した選択肢（Options）
+### Option 1: <案1>
+- 概要
+- メリット
+- デメリット
+
+### Option 2: <案2>
+- 概要
+- メリット
+- デメリット
+
+### Option 3: <案3>
+- ...
+
+## 結果（Consequences）
+### 良い影響
+- 得られるメリット
+
+### 悪い影響
+- 発生するデメリット / リスク
+
+## 実装方針（Implementation）
+- どのように適用するか
+- 技術的な補足
+
+## 参考（References）
+- 関連ドキュメント / URL / Issue番号
+</file>
+
+<file path="docs/adr/ADR-001-Phase1の題材として経費申請システムを採用">
+# ADR-001: Phase1の題材として経費申請システムを採用
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト
+- ポートフォリオのPhase1として、Spring Boot + REST API + DB + Docker構成のアプリを開発する必要がある
+- 単純なTodoアプリでは、実務に近い業務フロー（承認・状態管理など）を表現できない
+- SaaS企業への転職を前提とし、「業務アプリケーションの設計力」を示す必要がある
+- 認証・状態遷移・バリデーションなど、バックエンドの基礎スキルを網羅的に扱いたい
+
+## 決定
+- Phase1の題材として「経費申請システム」を採用する
+
+## 根拠
+- CRUDに加えて「状態遷移（申請中・承認済・却下）」を扱えるため、単純なデータ操作以上の設計が必要になる
+- ユーザー（申請者）と承認者というロール分離があり、RBACの基礎を表現できる
+- 金額・日付・用途などのバリデーションが必要であり、業務ロジックの実装経験を積める
+- 実務に近いドメインであり、面接時に説明しやすい
+- 将来的に以下へ拡張可能
+  - 承認フローの多段化
+  - 通知機能
+  - 監査ログ
+  - フロントエンドとの連携（React）
+
+## 検討した選択肢
+
+### Option 1: Todoアプリ
+- 概要: タスクのCRUD管理
+- メリット:
+  - 実装がシンプル
+  - 学習コストが低い
+- デメリット:
+  - 業務ロジックがほぼない
+  - 状態遷移や権限制御を表現しにくい
+  - ポートフォリオとして差別化が弱い
+
+### Option 2: ECサイト
+- 概要: 商品管理・購入機能
+- メリット:
+  - 一般的で理解しやすい
+  - フロントとの連携も自然
+- デメリット:
+  - 決済や在庫管理などスコープが広すぎる
+  - Phase1としては過剰設計になる
+
+### Option 3: 経費申請システム（採用）
+- 概要: 申請・承認フローを持つ業務アプリ
+- メリット:
+  - 状態遷移・ロール・バリデーションを扱える
+  - 実務に近いドメイン
+  - スコープを制御しやすい
+- デメリット:
+  - UI的な派手さはない
+  - 初見でのインパクトは弱い
+
+## 結果
+
+### 良い影響
+- 業務アプリ設計の基礎（状態遷移・権限・バリデーション）を実装できる
+- 面接で「実務に近い設計経験」として説明可能
+- Phase2以降の拡張（React化・認証追加）にスムーズに繋がる
+
+### 悪い影響
+- 見た目の派手さがなく、フロントエンドのアピールには弱い
+- ドメイン理解の説明をしないと価値が伝わりにくい
+
+## 実装方針
+- エンティティ: Expense, User
+- ステータス: DRAFT, SUBMITTED, APPROVED, REJECTED
+- API: CRUD + ステータス変更エンドポイント
+- バリデーション: 金額、日付、必須項目
+- 将来的にJWT認証・RBACを追加予定
+
+## 参考
+- 自身の転職目標（SaaS企業）
+- 業務アプリ設計の一般パターン
+</file>
+
+<file path="docs/adr/ADR-002-requestとapprovalの関係性.md">
+# ADR-002: requestとapprovalの関係性
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト（背景・課題）
+approvalはrequestに対して行われた判断の履歴であるが、これをrequest内で持つかどうかの検討があった。
+ER図作成の判断材料とするため、不変ルールや概念同士の関係の方針決定が必要であった。
+
+## 決定（Decision）
+- requestとapprovalを分離し、approvalは承認判断の履歴とする。
+- requestは承認ルートと現在の承認段を参照させることで、承認状態を紐づける。
+
+## 根拠（Rationale）
+- approvalを分離することで、承認履歴を追いやすくなる利点があった。
+- requestは申請内容と現在の申請ステータス、版管理IDなどのみを管理することで責務を分解することができる。
+- requestに情報を詰め込みすぎると設計が破綻する可能性があった。
+- requestの新規発生・更新のタイミングとapprovalの発生タイミングは異なるため、同一レコードで管理すると不要な情報まで増加し、データ肥大の可能性があった。
+
+## 検討した選択肢（Options）
+### Option 1: request内でapprovalの内容を管理する
+- request内で「第一承認」「第二承認」「第・・・」のようにカラムを持ち、承認がある毎に内容を上書きする。
+- メリット
+  - データを一元管理できる
+- デメリット
+  - 例えば第二承認の段で「差し戻し→再申請→承認」といった流れがあった場合、差し戻しの履歴が上書きされ、流れが追えなくなってしまう。
+  - 承認は順番に発生するため、各承認毎の発生時刻などの付加情報も管理する必要があり、カラムが肥大化する。
+
+## 結果（Consequences）
+### 良い影響
+- 責務が分解され、データとしてわかりやすくなる。
+- approvalの履歴が正確に終える。
+
+### 悪い影響
+- 特になし
+
+## 実装方針（Implementation）
+- 特になし
+
+## 参考（References）
+- 特になし
+</file>
+
+<file path="docs/adr/ADR-003-roleとapproval_policyの関係性.md">
+# ADR-003: roleとapproval policyの関係性
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト（背景・課題）
+- roleとapproval policyの役割が曖昧であり、どのような責務分解とするか考える必要があった。
+
+## 決定（Decision）
+- roleとapproval policyは分離する方針とした。
+- roleはあくまで承認権限の区分であり、approval policyは承認ルートや承認段数を決定するルールとする。
+
+## 根拠（Rationale）
+- 用語の定義として、役割とルールは分ける方が設計上の誤解が発生しないと判断した。
+
+## 検討した選択肢（Options）
+単に私がroleとapproval policyの区別が曖昧だっただけのため、別案は特にない
+
+## 結果（Consequences）
+### 良い影響
+- 言葉の定義による誤解が発生しない。
+
+### 悪い影響
+- 特になし
+
+## 実装方針（Implementation）
+- 特になし
+
+## 参考（References）
+- 特になし
+</file>
+
+<file path="docs/adr/ADR-004-役職を認可の根拠にすべきか.md">
+# ADR-004: 役職を認可の根拠にすべきか
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト（背景・課題）
+- userが申請を行ったとき、どんな人がその申請を承認できるのかの認可条件を定める必要があった。
+- 役職者（部長とか課長）を認可の条件にしたとして、役職者は配下のユーザーの承認者に自動選定されるとしたら、隣の課の課長が代理承認したいときにどうすればいいのかわからなかった。
+- 例えば、別の課の課長が部長代理も兼任していたとして、部長の代わりにその部長代理が承認したいのに、直系の上司じゃないから承認できないということが発生する懸念があった。
+
+## 決定（Decision）
+- 役職はただのラベルとし、承認権限などの認可の根拠としない。
+- 認可は申請が所属する組織と、申請者が承認許可されている組織が同一であること
+
+## 根拠（Rationale）
+- 役職を認可根拠とした場合、申請者の上司しか承認ができなくなってしまう。実際は他部署のuserが承認する可能性があるため、役職は認可根拠にすべきではない。
+- userは複数組織に属せる設計とし、所属組織毎にroleを設定すれば、他部署の承認も可能となる。また、自身が配属している別の課で経費精算をしたいときは、その課に属する申請を出せばよいだけになる。
+
+## 結果（Consequences）
+### 良い影響
+- 自身が所属するグループ以外での申請・承認を行うようになることができる。
+
+### 悪い影響
+- 発生するデメリット / リスク
+
+## 実装方針（Implementation）
+- どのように適用するか
+- 技術的な補足
+
+## 参考（References）
+- 関連ドキュメント / URL / Issue番号
+</file>
+
+<file path="docs/adr/ADR-005-requestを再申請したとき、requestは新規作成されるか.md">
+# ADR-005: requestを再申請したとき、requestは新規作成されるか
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト（背景・課題）
+- requestが差し戻しとなったとき、内容を編集して再度申請となるが、既存のrequestに編集後の内容を上書きすると変更差分を確認できなくなる問題があった。
+
+## 決定（Decision）
+- requestを再申請する際は新規にrequestを作成し、変更差分を確認できるようにする。
+- 具体的には、requestは「申請系列ID」と「版番号」の組み合わせで管理し、再申請後は「版番号」を増加させた新規申請データを作成する。
+
+## 根拠（Rationale）
+- 版数管理でrequestを管理することで、申請系列IDを親として再申請後のrequestも管理しやすくなる。
+- また、approvalやaudit logとの紐づけも正確に行える（新旧どちらの申請に対してなのかの区別ができる）。
+
+## 検討した選択肢（Options）
+### Option 1: requestで版数管理の番号を持つが、編集したデータは上書きする
+- メリット：1つのrequestが複数データにならない
+- デメリット：旧requestの内容がわからなくなる。また、approvalやaudit logが新旧どちらの申請に対してのものなのかの区別ができなくなる。
+
+## 結果（Consequences）
+### 良い影響
+- approvalやaudit logの対象申請が正確になる。
+
+### 悪い影響
+- 特になし
+
+## 実装方針（Implementation）
+- requestは「申請系列ID」と「版番号」を持ち、再申請後は「版番号」を増加させた新規申請データを作成する。
+- 申請系列IDは主キー、版番号は副キーとし、approvalやaudit logは複合キーで申請と紐づける。
+
+## 参考（References）
+- 特になし
+</file>
+
+<file path="docs/adr/ADR-006-監査ログの重要度.md">
+# ADR-006: 監査ログの重要度
+
+## ステータス
+Accepted
+
+## 日付
+2026-03-17
+
+## コンテキスト（背景・課題）
+audit logでは何を記録するのか？approvalでも承認履歴を追えるのだから不要ではないか？という課題があった。
+
+## 決定（Decision）
+- audit logはrequestやapprovalの履歴管理ではなく、重要操作の証跡を横断的に記録するfirst-classの独立概念として扱う。
+
+## 根拠（Rationale）
+audit logは、重要操作の証跡を横断的に記録する概念である。
+requestやapprovalの履歴だけではなく、ログイン履歴、ユーザー作成/削除などの設定履歴なども記録し、監査の観点で追跡可能性を担保するために存在する。
+また、操作種別・操作ユーザー・ポリシー変更・操作時間も記録する。
+そうすることで、例えばAユーザーがログイン後、どのような流れでどのような操作を行ったかの追跡を可能とする。
+
+## 検討した選択肢（Options）
+特になし
+
+## 結果（Consequences）
+### 良い影響
+- 経費申請という業務に近いフローにて、監査の観点で信頼性を付け加えることができる
+- ユーザー単位で操作履歴を行える
+
+### 悪い影響
+- 特になし
+
+## 実装方針（Implementation）
+- 特になし
+
+## 参考（References）
+- 特になし
+</file>
+
+<file path=".gitignore">
+node_modules/
+.env
+.env.*
+target/
+build/
+dist/
+.DS_Store
+*.log
+</file>
+
+<file path="README.md">
+
+</file>
+
+<file path="docs/temp.md">
+# domain-and-rules
+## このアプリでは何を扱うか
+本アプリでは**経費申請アプリ**を題材とする。
+本題材を通し、申請・承認・監査ログ・認証・認可・認可ポリシー・組織などの概念を実装し、学習することが目的である。
+
+---
+## 用語の定義 (requirements)
+本アプリで登場する登場人物や業務概念、権限についての用語を以下に一覧化する。
+
+### 登場人物
+- user
+- 申請者（requester）
+- 承認者（approver）
+- 管理者（admin）
+
+### 業務概念
+- 申請（request）
+- 承認（approval）
+- 承認ポリシー（approval policy）
+- 組織（organization）
+- 役割（role）
+- 監査ログ（audit log）
+
+### 権限
+- 申請権限（request authority）
+- 承認権限（approval authority）
+- 管理者権限（admin authority）
+
+---
+## 概念定義 (design overview)
+各登場人物の概念定義を以下に記載する。
+
+### 申請（request）
+申請（request）とは申請内容および、申請の現在状態の正本をを持つ。
+
+### 承認（approval）
+承認（approval）とは申請（request）に対して起きる判断（いつ誰がどのような判断を行ったか）の履歴である。
+
+### 承認ポリシー（approval policy）
+承認ポリシー（approval policy）とは、所属組織・申請種別・申請内容による承認ルートの差を定めたポリシーである。
+
+### 組織（organization）
+組織（organization）とはuserを所属・管理するグループであり、データ閲覧境界の基準である。
+
+### 役割（role）
+役割（role）とは所属組織毎にuserに適用される操作権限の区分である。
+
+### 監査ログ（audit log）
+監査ログ（audit log）とは、申請・承認の操作だけでなく、ユーザー追加/削除/変更やポリシー変更、システムログインなど、監査・追跡に必要な重要操作の証跡を保管する。
+
+---
+## 業務ルールと不変条件
+### 申請（request）
+#### ライフサイクル (design overview)
+申請（request）は作成されてから承認済み・却下・取り消し・差し戻しまで継続する。
+※差し戻し後の再申請時は新版が新規作成される。
+
+#### 申請（request）の現在状態 (requirements)
+requestの現在状態は1つのみしかない。
+requestの現在状態は申請中 / 承認済み / 差し戻し / 却下 / 取消の5つからなる。
+
+#### 申請（request）の版数管理 (design overview)
+1つの request は1つの申請版を表す。
+申請（request）は新規申請直後は第1版として作成され、差し戻し後の再申請の度、版数が増加した新規の申請（request）として管理される。
+新版の新規申請（request）は、旧版の申請（request）と同一の管理IDとバージョン管理IDの組み合わせで管理する（例：第1版 管理ID12345、バージョン管理ID1、第2版 管理ID12345、バージョン管理ID2）。
+
+#### 申請（request）が持つ情報 (design overview)
+requestは現在の承認段を情報として持つ。
+requestは申請時点のポリシーを基にして判断された承認担当情報（承認可能な候補集合など）や適用済み承認ルートを参照できる。
+
+#### その他 (requirements)
+1つの申請には1人の申請者がいる。
+申請（request）は必ずいずれかの組織に属する。
+申請（request）は現在の承認段の情報を持ち、多段承認を管理する。これにより現在状態が「申請中」の場合でも、現在の承認段と組み合わせることで1次承認待ちなのか2次承認待ちなのか、といった承認段を判断する。
+却下済みの申請に対し、申請内容の編集はできない。
+却下済みの申請に対し、再承認はできない。
+
+### 承認（approval）
+#### ライフサイクル (design overview)
+単体の承認（approval）自体は発生した時点で完了し、継続しない。
+申請（request）が却下された場合、後続の承認段は進行せず、以降の新たな承認（approval）は発生しない。
+なお、承認段の管理は申請（request）にて行う。
+
+#### 1つの申請に対する承認（approval）の件数 (requirements)
+承認（approval）は1つの申請（request）に対して0回以上発生する（申請が提出後すぐに取り消されるケースは承認が0回となる可能性がある）。
+
+#### 認可の条件 (design overview)
+特定の申請に対して承認できる条件は以下である。
+・承認者に申請が属している組織の承認権限が付与されていること
+・承認者がその request の現在承認段の対象であること
+・承認者がrequestの承認ルート上にあること
+
+#### その他 (design overview)
+approvalは必ず既存の申請(申請中ステータス)に対して行われる。
+対象のrequestは、requestの管理IDと版IDの組み合わせで紐づける。
+承認者はその時点での承認権限を持っていなければならない。
+同じ承認段階で複数の承認者がいた場合、承認の重複は起こらない（誰かが承認すると、ルートに従い次の段の承認フェーズとなる）。
+次の承認者は誰か、現在何段目の承認かといった情報はapprovalでは持たない。
+
+### 承認ポリシー（approval policy）
+#### 申請後のポリシー変更 (design overview)
+申請後にポリシーが変更となった場合でも、ポリシーが変更される前に行われた申請には変更前のポリシーが固定され、次回の申請から変更後のポリシーが適用される。
+
+#### ポリシーの条件例 (design overview)
+以下の違いにより、承認ルートや承認段数が変化する。
+・申請が属する組織（例：部付の社員は直接部長が承認を行う）
+・申請の種別（例：接待費は経理部の承認も必要とする）
+・申請の内容（例：金額が10万円より低い場合は部長承認はスキップする）
+
+### 組織（organization） (requirements)
+userは1つ以上のグループに所属できる。
+
+### 監査ログ（audit log） (requirements)
+監査ログ（audit log）の例として、以下のような内容がaudit logに含まれる。
+・操作種別
+・操作ユーザー
+・操作ユーザーの所属組織
+・操作対象
+・操作日時
+
+## 状態遷移 (design overview)
+状態遷移の表を以下に記載する。
+| 操作名 | 実行者 | 対象の現在状態 | 実行条件 | 実行後の状態 | approval追加 | audit log記録 | 主な拒否条件 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 申請作成 | 申請者 | - | 申請者自身であること | 申請中 | なし | あり | 申請権限無し / 申請内容の不備 |
+| 承認 | 承認者 | 申請中 | 承認権限を持ち、かつその申請の承認担当である | 申請中となり現在の承認段階が進む、または承認済み | あり | あり | 権限なし / 状態不正 / すでに処理済み |
+| 差し戻し | 承認者 | 申請中 | 承認権限を持ち、かつその申請の承認担当である | 差し戻し状態となり、承認が不可となる。申請者本人が修正および再申請を行える。 | あり | あり | 権限なし / 状態不正 / すでに処理済み |
+| 再申請 | 申請者 | 差し戻し | 申請者自身であること | 新版が新規に作成され、申請中となる | なし | あり | 申請権限無し / 申請内容の不備 |
+| 却下 | 承認者 | 申請中 | 承認権限を持ち、かつその申請の承認担当である | 却下済みとなり、申請者・承認者による操作は不可となる | あり | あり | 権限なし / 状態不正 / すでに処理済み |
+| 取消 | 申請者 | 申請中 / 差し戻し | 申請者自身であること | 取消済みとなり、申請者・承認者による操作は不可となる | なし | あり | 申請権限無し / すでに処理済み |
+
+
+## 概念同士の関係 (design overview)
+### user / organization / role の関係は、認可判定のためにどこまで必要か
+organizationはデータ境界の基準となる。
+roleは操作権限であり、同一userでもorganization毎に操作権限が異なる。例えばAユーザーはX組織では管理者であるが、Y組織では一般申請者になる。
+なお、承認ルートはapproval policyにより定められる。
+
+### user と organization
+多重度：多対多
+userは組織ごとに異なる操作権限を持つことができる。そのため、多対多となる。
+
+### user と role
+user と role は直接結ばない。user の organization 所属を介して role が付与される。
+
+### request と approval
+多重度：1対多
+1requestに対し承認操作が発生する度にapprovalが発生するため、1対多となる。
+
+### request と approval policy
+requestの発生時にその時点でのapproval policyを参照し、approval policyによる承認ルートなどがrequestに適用される
+
+### audit log は各概念への外部参照として持つのか
+audit logは各監査ログ毎にrequest / approval / policy / user などの対象識別子を持ち、各概念と監査ログを紐づけることができる。
+
+## ER図やAPI設計に進む上での未確定論点
+部下の過去の申請を閲覧するにはどのような条件が必要か。
+申請時に確定した承認ルートはどのように管理されるか。
+同一の承認段に複数承認者がいた場合、主承認者を定める必要はあるか。
+代理承認を行う必要があるか、行う場合はどのように管理するか。
+代理申請を行う必要があるか、行う場合はどのように管理するか。
+</file>
+
+<file path="docs/design-overview.md">
+## **概要**
+
+本書は、経費申請アプリにおける主要概念の責務分離と関係を整理するための設計概要である。  
+ 目的は、ER 図、API 設計、認可設計へ進む前に、**どの概念が何を表し、どこに責務を置くか**を明確にすることである。
+
+---
+
+## **設計方針**
+
+本アプリでは、状態、履歴、設定、権限、監査を同一概念に混在させない。  
+ 特に、以下の分離を重視する。
+
+- request は申請版の現在状態を持つ正本である
+
+- approval は判断履歴であり、進行管理を持たない
+
+- approval policy は承認ルート決定ルールである
+
+- role は操作権限であり、承認段数や金額条件は持たない
+
+- audit log は横断的な証跡であり、業務データ本体ではない
+
+---
+
+## **主要概念**
+
+### **request**
+
+request は、1つの申請版を表す。
+申請内容、現在状態、現在承認段を保持する。
+また、申請時点で確定した承認担当情報や適用済み承認ルートを参照する。
+
+### **approval**
+
+approval は、request に対する判断履歴である。
+誰が、いつ、どのような判断をしたかを表す。
+approval は進行中状態を持たず、承認ワークフローの現在位置は request 側で管理する。
+
+### **approval policy**
+
+approval policy は、承認ルートを決定するルールである。
+所属 organization、申請種別、金額条件などに応じて、承認段数や承認対象者の条件を決定する。
+
+### **applied approval route**
+
+applied approval route は、approval policy を request 作成時に評価した結果である。
+同じ policy が後で変更されても、既存 request には申請時点で確定した route を維持する。
+
+### **organization**
+
+organization は、user の所属単位であり、データ閲覧境界と権限適用範囲の基準である。
+
+### **role**
+
+role は、organization への所属に対して付与される操作権限の区分である。
+role は、申請作成、承認、管理操作といった「何ができるか」を表す。
+一方で、承認段数や金額条件などの業務ルールは approval policy 側で扱う。
+
+### **audit log**
+
+audit log は、重要操作の証跡を横断的に記録する概念である。
+request や approval の代替ではなく、追跡可能性を担保するための独立概念として扱う。
+
+---
+
+## **概念同士の関係**
+
+### **user と organization**
+
+user と organization は多対多である。
+user は複数の organization に所属でき、organization には複数の user が所属できる。
+
+### **user と role**
+
+user と role は直接結ばない。
+role は、user の organization 所属に対して付与される。
+
+### **request と approval**
+
+1つの request に対して、approval は 0 件以上発生する。
+approval は request の判断履歴であり、request の現在状態そのものではない。
+
+### **request と approval policy / applied approval route**
+
+request 作成時には、その時点の approval policy を参照して承認ルートを決定する。
+request 自体が過去の policy を毎回動的に参照するのではなく、申請時点で確定した適用結果を保持または参照する。
+
+### **audit log と各概念**
+
+audit log は、request / approval / approval policy / user などの対象識別子を保持する。
+これにより、どの操作がどの対象に対して行われたかを追跡できる。
+
+---
+
+## **認可の考え方**
+
+認可判定では、少なくとも以下を確認する。
+
+- 認証済み user であること
+
+- 対象 request が属する organization において必要な role を持つこと
+
+- その request の現在承認段の対象者であること
+
+- その request に適用された承認ルート上の承認対象者であること
+
+認可は UI だけでなく、API 側でも強制される前提とする。これはロードマップでも「UIで隠せば権限制御できたと誤解しないこと」「API側の 403 と整合して初めて意味がある」と整理されている論点です。
+
+---
+
+## **設計上の主要判断**
+
+以下は、README や ADR に残すべき判断候補である。
+
+- 題材として経費申請を採用した理由
+
+- request と approval を分離した理由
+
+- role と approval policy を分離した理由
+
+- 役職を認可の根拠にしない理由
+
+- request を版管理する理由
+
+- 監査ログを first-class の独立概念として扱う理由
+
+---
+
+## **未確定論点**
+
+- applied approval route をどの粒度で保持するか
+
+- organization 所属をどのような中間概念で表すか
+
+- 閲覧権限の細かい条件をどこまで role で表すか
+
+- 代理承認、代理申請を Phase 1 に含めるか
+
+- 同一承認段の複数承認者に主担当概念を入れるか
+</file>
+
+<file path="docs/domain-rules.md">
+## **概要**
+
+本アプリは、**経費申請アプリ**を題材とした B2B ワークフロー SaaS 風アプリである。
+この題材を通して、申請、承認、監査ログ、認証、認可、承認ポリシー、組織といった業務システムに特有の概念を整理し、実装可能な形に落とし込むことを目的とする。
+
+本書では、アプリが扱う業務ルール、不変条件、状態遷移、および未確定論点を整理する。
+
+---
+
+## **登場人物**
+
+本アプリで扱う登場人物は以下のとおりである。
+
+- `user`
+  アプリを利用する主体である。
+
+- `requester`
+  申請を作成・再申請・取消できる利用者である。
+
+- `approver`
+  承認対象の申請に対して、承認・差し戻し・却下を行う利用者である。
+
+- `admin`
+  組織、ユーザー、ロール、承認ポリシーなどの管理操作を行う利用者である。
+
+---
+
+## **業務概念**
+
+本アプリで扱う主要な業務概念は以下のとおりである。
+
+- `request`
+  申請内容と、その申請版の現在状態を表す業務データである。
+
+- `approval`
+  request に対して行われた判断の履歴である。
+
+- `approval policy`
+  所属組織、申請種別、申請内容に応じて、どのような承認ルートを適用するかを決めるルールである。
+
+- `organization`
+  user が所属する単位であり、データ閲覧境界および権限適用範囲の基準である。
+
+- `role`
+  organization への所属に対して付与される操作権限の区分である。
+
+- `audit log`
+  重要操作の証跡を記録する監査用ログである。
+
+---
+
+## **権限**
+
+本アプリでは、少なくとも以下の権限を扱う。
+
+- 申請権限
+
+- 承認権限
+
+- 管理者権限
+
+これらの権限は user に直接付与されるのではなく、**organization への所属を介して role として適用される**。
+
+---
+
+## **request に関する業務ルール**
+
+### **request の意味**
+
+1つの `request` は、**1つの申請版**を表す。
+申請内容そのものと、その申請版の現在状態を保持する正本である。
+
+### **request の状態**
+
+request の現在状態は常に1つであり、以下のいずれかを取る。
+
+- 申請中
+
+- 承認済み
+
+- 差し戻し
+
+- 却下
+
+- 取消
+
+### **request の版管理**
+
+新規申請時には、第1版の request が作成される。
+差し戻し後に再申請する場合は、既存 request を上書きせず、**新版の request を新規作成する**。
+
+同一の申請系列は、たとえば以下のように管理する。
+
+- 申請系列 ID
+
+- 版番号
+
+例:
+
+- 申請系列 ID: 12345, 版番号: 1
+
+- 申請系列 ID: 12345, 版番号: 2
+
+### **request の所属と申請者**
+
+- 1つの request には、1人の申請者が存在する。
+
+- request は必ず1つの organization に属する。
+
+### **request が保持・参照する情報**
+
+- request は現在の承認段を保持する。
+
+- request は、申請時点で決定された承認担当情報および適用済み承認ルートを参照できる。
+
+### **request に関する不変条件**
+
+- 却下済み request は編集できない。
+
+- 却下済み request は再承認できない。
+
+- 現在状態が「申請中」であっても、現在承認段と組み合わせることで、何段目の承認待ちかを判定できる。
+
+---
+
+## **approval に関する業務ルール**
+
+### **approval の意味**
+
+`approval` は、request に対して行われた判断の履歴である。
+誰が、いつ、どのような判断を行ったかを記録する。
+
+### **approval のライフサイクル**
+
+1つの approval は、発生した時点で完了する。
+継続的な状態は持たない。
+
+また、request が却下された場合、後続の承認段は進行せず、それ以降の新たな approval は発生しない。
+
+### **approval の件数**
+
+1つの request に対して、approval は 0 回以上発生する。
+たとえば、申請直後に request が取り消された場合、approval が 0 件のまま終了することがある。
+
+### **approval に関する不変条件**
+
+- approval は必ず既存の request に対して行われる。
+
+- approval の対象 request は、申請系列 ID と版番号の組み合わせで特定される。
+
+- approval は「申請中」の request に対してのみ行われる。
+
+- 承認者は、その時点で承認権限を持っていなければならない。
+
+- 同一承認段に複数の承認者がいる場合、承認は重複しない。誰か1人が承認した時点で、ルートに従って次段へ進行する。
+
+- approval 自体は、次の承認者や現在承認段といった進行管理情報は持たない。進行管理は request 側で行う。
+
+### **承認操作が許可される条件**
+
+特定の request に対して承認操作が許可されるのは、少なくとも以下の条件を満たす場合である。
+
+- 承認者に、その request が属する organization における承認権限が付与されていること
+
+- 承認者が、その request の現在承認段の対象者であること
+
+- 承認者が、その request に適用された承認ルート上の承認対象者であること
+
+---
+
+## **approval policy に関する業務ルール**
+
+### **approval policy の意味**
+
+`approval policy` は、所属組織、申請種別、申請内容に応じて、承認ルートや承認段数を決定するルールである。
+
+### **policy の適用タイミング**
+
+request 作成時には、その時点の approval policy を用いて承認ルートを決定する。
+申請後に approval policy が変更された場合でも、**既存の request には申請時点のルールを適用した結果を維持する**。変更後の policy は、次回以降の新規 request に適用される。
+
+### **policy 条件の例**
+
+承認ルートや承認段数は、以下の条件によって変化しうる。
+
+- request が属する organization
+
+- 申請種別
+
+- 申請内容
+
+- 金額条件
+
+例:
+
+- 部付の社員は、部長承認から開始する
+
+- 接待費は、経理部承認も必要とする
+
+- 金額が 10 万円未満の場合は、部長承認をスキップする
+
+---
+
+## **organization と role に関する業務ルール**
+
+### **organization**
+
+organization は、user が所属する単位である。
+また、organization はデータ閲覧境界および権限適用範囲の基準となる。
+
+user は、1つ以上の organization に所属できる。
+
+### **role**
+
+role は操作権限の区分であり、user に直接付与されるのではなく、**organization への所属に対して付与される**。
+
+同一 user であっても、organization ごとに role が異なりうる。
+たとえば、ある user は organization X では admin、organization Y では requester であることがある。
+
+---
+
+## **audit log に関する業務ルール**
+
+### **audit log の意味**
+
+`audit log` は、申請・承認だけでなく、ユーザー追加、ユーザー変更、ポリシー変更、ログインなど、監査・追跡に必要な重要操作の証跡を記録する。
+
+### **audit log に含める代表項目**
+
+- 操作種別
+
+- 操作ユーザー
+
+- 操作ユーザーの所属 organization
+
+- 操作対象
+
+- 操作日時
+
+audit log は、request / approval / approval policy / user などの対象識別子を保持し、各概念との追跡可能性を確保する。
+
+---
+
+## **状態遷移**
+
+| 操作名   | 実行者 | 対象の現在状態    | 実行条件                                                    | 実行後の状態                              | approval追加 | audit log記録 | 主な拒否条件                   |
+| -------- | ------ | ----------------- | ----------------------------------------------------------- | ----------------------------------------- | ------------ | ------------- | ------------------------------ |
+| 申請作成 | 申請者 | \-                | 申請者本人であり、申請権限を持つこと                        | 申請中                                    | なし         | あり          | 権限なし / 入力不備            |
+| 承認     | 承認者 | 申請中            | 承認権限を持ち、その request の現在承認段の対象者であること | 申請中のまま承認段が進む、または承認済み  | あり         | あり          | 権限なし / 状態不正 / 処理済み |
+| 差し戻し | 承認者 | 申請中            | 承認権限を持ち、その request の現在承認段の対象者であること | 差し戻し                                  | あり         | あり          | 権限なし / 状態不正 / 処理済み |
+| 再申請   | 申請者 | 差し戻し          | 申請者本人であり、申請権限を持つこと                        | 新版 request が新規作成され、申請中となる | なし         | あり          | 権限なし / 入力不備            |
+| 却下     | 承認者 | 申請中            | 承認権限を持ち、その request の現在承認段の対象者であること | 却下                                      | あり         | あり          | 権限なし / 状態不正 / 処理済み |
+| 取消     | 申請者 | 申請中 / 差し戻し | 申請者本人であること                                        | 取消                                      | なし         | あり          | 権限なし / 処理済み            |
+
+---
+
+## **未確定論点**
+
+以下は、ER 図や API 設計に進む前に今後詰めるべき論点である。
+
+- 上位者が部下の過去申請を閲覧できる条件
+
+- 申請時に確定した承認ルートの保持方法
+
+- 同一承認段に複数承認者がいる場合の主承認者の要否
+
+- 代理承認の要否と管理方法
+
+- 代理申請の要否と管理方法
+</file>
+
+</files>
