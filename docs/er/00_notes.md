@@ -1,0 +1,3 @@
+- organization_membership を独立概念にする理由
+- request_series_id + version_no をどう扱うか
+- approval_policy と applied_route をどこまで分けるか
