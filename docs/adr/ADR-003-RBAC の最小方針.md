@@ -89,3 +89,11 @@ API では少なくとも次を確認する。
 - 対象 `request` が属する `organization` に、その利用者が所属していること
 - 必要な `role` を持っていること
 - 承認操作であれば、その `request` の現在承認段と適用済み承認ルートに照らして承認対象者であること
+
+## 追記: organization_membership と role の関係（2026-03-24）
+
+role は organization_membership に直接持たず、membership_roles という中間テーブルを介して付与する。
+
+理由: 同じ組織への所属に対して複数のロールが付きうるため、organization_memberships テーブルに role_id カラムを直接持つと1ロールしか表現できない。
+
+membership_roles は (membership_id, role_id) の組み合わせを1件として持つ。

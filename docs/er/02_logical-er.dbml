@@ -1,0 +1,61 @@
+Table users {
+  user_id uuid [pk]
+
+}
+
+Table organizations {
+  organization_id uuid [pk]
+}
+
+Table roles {
+  role_id uuid [pk]
+
+}
+
+Table requests {
+  request_id uuid [pk]
+  request_series_id uuid [not null]
+  version_no uuid [not null]
+
+
+}
+
+Table approvals  {
+  approval_id uuid [pk]
+  user_id uuid
+
+}
+
+Table approval_policy {
+  id uuid [pk]
+}
+
+Table applied_approval_routes {
+  applied_approval_route_id uuid [pk]
+
+}
+
+Table applied_approval_route_steps {
+  applied_approval_route_step_id uuid [pk]
+
+Note: "そのルートの中の、1ステップ分の記録。「何段目に、誰が承認者か」"
+}
+
+Table applied_approval_route_step_approvers {
+  applied_approval_route_step_approver_id uuid [pk]
+
+}
+
+Table audit_logs {
+  audit_log_id uuid [pk]
+
+}
+
+Table organization_memberships {
+  organization_membership_id uuid [pk]
+}
+
+Table membership_roles {
+  membership_roles_id uuid [pk]
+
+}
