@@ -1,0 +1,20 @@
+## mermaidにおける関係の主従について
+- 基本的にはrequestが主役の認識。なのでrequestが左側に来る。
+- 例外として、userに関してはrequestを生み出す側なので左側にしている。
+- 1つのuserは複数のorganizationに所属できる。また、1つのorganizationも複数のuserと紐づく。よって、多対多となるため、間にORGANIZATION_MEMBERSHIPが入る。
+- ER図ではuserとORGANIZATION_MEMBERSHIP、organizationとorganization_membershipがそれぞれ紐づく。
+- また、roleもuserには直接つながらず、userとorganizationの組み合わせに対して紐づく。
+- よって、roleは、ORGANIZATION_MEMBERSHIPに紐づく。
+- ORGANIZATION_MEMBERSHIP }o--|| ROLE に関しては、各ORGANIZATION_MEMBERSHIPにROLEが付いていくイメージだったので、ORGANIZATION_MEMBERSHIPを左側にした
+- AUDIT_LOGはREQUEST、APPROVAL、APPROVAL_POLICYなどに紐づく。
+- AUDIT_LOGと各種概念は、どちらかが無くても成立するつながりなので、「..」でつないでいる。
+- AUDIT_LOG関連の主従関係はあまり意識しなくてもいいのかな？と思ったので、とりあえずAUDIT_LOGを左側にしている。
+
+## ラベルについて
+- USER ||--o{ REQUEST　は、USERがREQUESTを作るのでcreatesにしている。
+- USER }o--|{ ORGANIZATION_MEMBERSHIP　に関しては迷ったし、今でも曖昧。なのでhasにした。
+- 同様に、ORGANIZATION ||--|{ ORGANIZATION_MEMBERSHIP　もhasにした。
+- REQUEST }o--|| ORGANIZATION　は、REQUESTはORGANIZATIONに属すると思ったのでbelongs_toにした。
+- それ以外のREQUEST主体の関係については、正直よくわからないがhasにした。
+- ORGANIZATION_MEMBERSHIP }o--|| ROLE に関しては、各ORGANIZATION_MEMBERSHIPにROLEが付いていくイメージだったのでhasにした
+- AUDIT_LOG関連は主従関係とかなさそうだったので、とりあえずhasにした
