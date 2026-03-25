@@ -1,61 +1,162 @@
 Table users {
-  user_id uuid [pk]
-
+  id uuid [pk]
+  Note: "本システムを利用するユーザー"
 }
 
 Table organizations {
-  organization_id uuid [pk]
+  id uuid [pk]
+  Note: "ユーザーが所属する組織"
 }
 
 Table roles {
-  role_id uuid [pk]
+  id uuid [pk]
+  Note: "本システムでどのような役割を行えるかを示す権限"
 
 }
 
 Table requests {
-  request_id uuid [pk]
+  id uuid [pk]
   request_series_id uuid [not null]
-  version_no uuid [not null]
+  version_no int [not null]
+  status request_status [not null]
+  current_applied_approval_route_step_id uuid [null, ref: > applied_approval_route_steps.id]
+  applicant_user_id uuid [not null, ref: > users.id]
+  organization_id uuid [not null, ref: > organizations.id]
+  request_type varchar [not null]
+  amount int [null]
+  created_at timestamp [not null]
+  indexes {
+  (request_series_id, version_no) [unique]
+  }
+  Note: "申請本体"
+}
 
-
+Enum request_status {
+  in_progress
+  approved
+  returned
+  rejected
+  cancelled
 }
 
 Table approvals  {
-  approval_id uuid [pk]
-  user_id uuid
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  request_id uuid [not null, ref: > requests.id]
+  applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
+  type approval_type [not null, Note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
+  created_at timestamp [not null]
+  indexes {
+    (request_id, applied_approval_route_step_id) [unique]
+  }
+  Note: "承認本体"
+}
 
+Enum approval_type {
+  approved
+  returned
+  rejected
 }
 
 Table approval_policy {
   id uuid [pk]
+  organization_id uuid [not null, ref: > organizations.id]
+  request_type varchar [not null]
+  min_amount int [null, Note: "NULLの場合は金額条件なし"]
+  approval_route_id uuid [not null, ref: > approval_route.id]
+  Note: "承認ルール"
+}
+
+Table approval_route {
+  id uuid [pk]
+  name varchar [not null]
+}
+
+Table approval_route_steps {
+  id uuid [pk]
+  step_no int [not null]
+  approval_route_id uuid [not null, ref: > approval_route.id]
+  indexes {
+  (approval_route_id, step_no) [unique]
+  }
+}
+
+Table approval_route_step_approvers {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  approval_route_step_id uuid [not null, ref: > approval_route_steps.id]
+  indexes {
+  (user_id, approval_route_step_id) [unique]
+  }
 }
 
 Table applied_approval_routes {
-  applied_approval_route_id uuid [pk]
-
+  id uuid [pk]
+  request_id uuid [not null, unique, ref: - requests.id]
+  approval_policy_id uuid [not null, ref: > approval_policy.id]
+  Note: "決定済みの承認ルート"
 }
 
 Table applied_approval_route_steps {
-  applied_approval_route_step_id uuid [pk]
-
-Note: "そのルートの中の、1ステップ分の記録。「何段目に、誰が承認者か」"
+  id uuid [pk]
+  step_no int [not null]
+  applied_approval_route_id uuid [not null, ref: > applied_approval_routes.id]
+  indexes {
+    (applied_approval_route_id, step_no) [unique]
+  }
+  Note: "決定済みの承認ルートの段数"
 }
 
 Table applied_approval_route_step_approvers {
-  applied_approval_route_step_approver_id uuid [pk]
-
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id]
+  indexes {
+  (user_id, applied_approval_route_step_id) [unique]
+  }
+  Note: "決定済みの承認ルートの段数毎の承認者"
 }
 
 Table audit_logs {
-  audit_log_id uuid [pk]
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  actor_organization_id uuid [not null, ref: > organizations.id]
+  target_type varchar [not null, Note: "操作対象名"]
+  target_id uuid [not null, Note: "操作対象識別子"]
+  operation_type operation_type [not null, Note: "操作種別"]
+  occurred_at timestamp [not null]
+  Note: "監査ログ"
+}
 
+Enum operation_type {
+  create
+  update
+  delete
+  submit
+  approve
+  return
+  reject
+  cancel
+  login
+  logout
 }
 
 Table organization_memberships {
-  organization_membership_id uuid [pk]
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id ]
+  organization_id uuid [not null, ref: > organizations.id]
+  indexes {
+  (user_id, organization_id) [unique]
+  }
+  Note: "ユーザーと組織の組み合わせt"
 }
 
 Table membership_roles {
-  membership_roles_id uuid [pk]
-
+  id uuid [pk]
+  organization_membership_id uuid [not null, ref: > organization_memberships.id]
+  role_id uuid [not null, ref: > roles.id]
+  indexes {
+  (organization_membership_id, role_id) [unique]
+  }
+  Note: "組織メンバーシップとロールの組み合わせ"
 }
