@@ -1,6 +1,6 @@
 # ADR Index
 
-このディレクトリは、OrgFlow の設計判断を記録した ADR（Architecture Decision Record）の一覧です。  
+このディレクトリは、OrgFlow の設計判断を記録した ADR（Architecture Decision Record）の一覧です。
 各 ADR には、採用した案・不採用の案・見直す条件を残しています。
 
 ## 一覧
