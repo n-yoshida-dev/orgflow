@@ -2,9 +2,491 @@
   "version": "1.0.0",
   "darkMode": true,
   "gridEnabling": false,
-  "detailLevel": "All",
-  "tablePositions": [],
+  "detailLevel": "Keys",
+  "tablePositions": [
+    {
+      "name": "users",
+      "schemaName": "public",
+      "x": 263.98705879628835,
+      "y": -376.2206533973388
+    },
+    {
+      "name": "organizations",
+      "schemaName": "public",
+      "x": 321.92345729994986,
+      "y": 92.94639021571743
+    },
+    {
+      "name": "roles",
+      "schemaName": "public",
+      "x": -19.00540860223697,
+      "y": 339.45325910648455
+    },
+    {
+      "name": "requests",
+      "schemaName": "public",
+      "x": 833.1420727068262,
+      "y": -217.77823178874115
+    },
+    {
+      "name": "approvals",
+      "schemaName": "public",
+      "x": -357.5205419663948,
+      "y": -281.6668809778769
+    },
+    {
+      "name": "approval_policy",
+      "schemaName": "public",
+      "x": 275.0266834546535,
+      "y": 233.7981359653316
+    },
+    {
+      "name": "approval_route",
+      "schemaName": "public",
+      "x": 265.5020252515285,
+      "y": 430.64895393432016
+    },
+    {
+      "name": "approval_route_steps",
+      "schemaName": "public",
+      "x": 266.7366443921535,
+      "y": 564.7975241290842
+    },
+    {
+      "name": "approval_route_step_approvers",
+      "schemaName": "public",
+      "x": 249.45770237415502,
+      "y": 738.437892832479
+    },
+    {
+      "name": "applied_approval_routes",
+      "schemaName": "public",
+      "x": 885.0524720411811,
+      "y": 4.064923265806499
+    },
+    {
+      "name": "applied_approval_route_steps",
+      "schemaName": "public",
+      "x": 872.4542379506406,
+      "y": 111.29257434653243
+    },
+    {
+      "name": "applied_approval_route_step_approvers",
+      "schemaName": "public",
+      "x": 840.1628683064982,
+      "y": 286.5085344655123
+    },
+    {
+      "name": "audit_logs",
+      "schemaName": "public",
+      "x": 268.8107565803014,
+      "y": -119.22448750898985
+    },
+    {
+      "name": "organization_memberships",
+      "schemaName": "public",
+      "x": -101.24843161138833,
+      "y": 31.62620586402005
+    },
+    {
+      "name": "membership_roles",
+      "schemaName": "public",
+      "x": -149.15023789272874,
+      "y": 187.01934271249712
+    }
+  ],
   "tableGroupCollapseStates": [],
   "stickyNoteLayouts": [],
-  "referencePaths": []
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "applied_approval_route_steps",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "current_applied_approval_route_step_id"
+      ],
+      "secondTableName": "requests",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "applicant_user_id"
+      ],
+      "secondTableName": "requests",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": [
+        {
+          "x": 776.0600597744462,
+          "y": -328.2206533973388
+        },
+        {
+          "x": 776.0600597744462,
+          "y": -105.77823178874115
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "organizations",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "organization_id"
+      ],
+      "secondTableName": "requests",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "approvals",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "requests",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "request_id"
+      ],
+      "secondTableName": "approvals",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "applied_approval_route_steps",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "applied_approval_route_step_id"
+      ],
+      "secondTableName": "approvals",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": [
+        {
+          "x": 692.1904080999336,
+          "y": 159.29257434653243
+        },
+        {
+          "x": 692.1904080999336,
+          "y": -134.9870653295742
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "organizations",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "organization_id"
+      ],
+      "secondTableName": "approval_policy",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "approval_route",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "approval_route_id"
+      ],
+      "secondTableName": "approval_policy",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "approval_route",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "approval_route_id"
+      ],
+      "secondTableName": "approval_route_steps",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "firstEndpointSide": "left",
+      "checkPoints": [
+        {
+          "x": 245.5020252515285,
+          "y": 548.3241607901888
+        },
+        {
+          "x": 526.9114490796535,
+          "y": 548.3241607901888
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "approval_route_step_approvers",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": [
+        {
+          "x": 589.1516229662868,
+          "y": -328.2206533973388
+        },
+        {
+          "x": 589.1516229662868,
+          "y": 818.4378928324791
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "approval_route_steps",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "approval_route_step_id"
+      ],
+      "secondTableName": "approval_route_step_approvers",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "firstEndpointSide": "left",
+      "checkPoints": [
+        {
+          "x": 246.7366443921535,
+          "y": 719.5585380634196
+        },
+        {
+          "x": 556.993835186655,
+          "y": 719.5585380634196
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "requests",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "request_id"
+      ],
+      "secondTableName": "applied_approval_routes",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "approval_policy",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "approval_policy_id"
+      ],
+      "secondTableName": "applied_approval_routes",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "applied_approval_routes",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "applied_approval_route_id"
+      ],
+      "secondTableName": "applied_approval_route_steps",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "firstEndpointSide": "left",
+      "secondEndpointSide": "left",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "applied_approval_route_step_approvers",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": [
+        {
+          "x": 729.7551969995064,
+          "y": -328.2206533973388
+        },
+        {
+          "x": 729.7551969995064,
+          "y": 366.50853446551235
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "applied_approval_route_steps",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "applied_approval_route_step_id"
+      ],
+      "secondTableName": "applied_approval_route_step_approvers",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "audit_logs",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "organizations",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "actor_organization_id"
+      ],
+      "secondTableName": "audit_logs",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "organization_memberships",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "organizations",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "organization_id"
+      ],
+      "secondTableName": "organization_memberships",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "organization_memberships",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "organization_membership_id"
+      ],
+      "secondTableName": "membership_roles",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "firstEndpointSide": "left",
+      "secondEndpointSide": "left",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "roles",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "role_id"
+      ],
+      "secondTableName": "membership_roles",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    }
+  ]
 }
