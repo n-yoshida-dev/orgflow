@@ -9,6 +9,11 @@ Table users {
   created_at timestamptz [not null, default: `now()`]
 }
 
+Table organizations {
+  id uuid [pk]
+  organization_name text [not null]
+}
+
 Table requests {
   id uuid [pk]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
