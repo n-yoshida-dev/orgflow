@@ -61,6 +61,21 @@ Table requests {
   }
 }
 
-Table approvals {
+Enum approval_type {
+  approved
+  returned
+  rejected
+}
 
+Table approvals {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  request_id uuid [not null, ref: > requests.id]
+  applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
+  type approval_type [not null, Note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
+  approval_message text [null]
+  created_at timestamp [not null]
+  indexes {
+    (request_id, applied_approval_route_step_id) [unique]
+  }
 }
