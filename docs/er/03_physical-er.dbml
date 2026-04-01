@@ -5,13 +5,13 @@ Project orgflow {
 Table users {
   id uuid [pk]
   user_name text [not null] // first_name, last_name で別けるべきか？middle_nameがある場合はどうするか？first_name, last_nameの間は半角スペース区切りにする予定だが、半角スペース区切りはアプリ側責務か？数字・記号を入力禁止にする制約はあるのか？フロントエンドとバックエンド側の責務か？
-  mail_address text [not null] // メールアドレスの形式("xxx@yyy.zzz")を指定する制約はあるか？フロントエンドとバックエンド側の責務？
+  mail_address text [not null, unique] // メールアドレスの形式("xxx@yyy.zzz")を指定する制約はあるか？フロントエンドとバックエンド側の責務？
   created_at timestamptz [not null, default: `now()`]
 }
 
 Table organizations {
   id uuid [pk]
-  organization_name text [not null]
+  organization_name text [not null, unique]
 }
 
 Table requests {
