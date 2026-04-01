@@ -79,3 +79,8 @@ Table approvals {
     (request_id, applied_approval_route_step_id) [unique]
   }
 }
+
+Table approval_routes {
+  id uuid [pk]
+  name varchar(100) [not null]
+}
