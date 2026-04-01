@@ -84,3 +84,12 @@ Table approval_routes {
   id uuid [pk]
   name varchar(100) [not null]
 }
+
+Table approval_route_steps {
+  id uuid [pk]
+  step_no int [not null]
+  approval_route_id uuid [not null, ref: > approval_routes.id]
+  indexes {
+    (approval_route_id, step_no) [unique]
+  }
+}
