@@ -23,6 +23,11 @@ Table organization_memberships {
   }
 }
 
+Table roles {
+  id uuid [pk]
+  role_name text [not null]
+}
+
 Table requests {
   id uuid [pk]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
