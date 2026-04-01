@@ -28,6 +28,15 @@ Table roles {
   role_name text [not null]
 }
 
+Table membership_roles {
+  id uuid [pk]
+  organization_membership_id uuid [not null, ref: > organization_memberships.id]
+  role_id uuid [not null, ref: > roles.id]
+  indexes {
+    (role_id, organization_membership_id) [unique]
+  }
+}
+
 Table requests {
   id uuid [pk]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
