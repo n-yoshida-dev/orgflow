@@ -93,3 +93,17 @@ Table approval_route_steps {
     (approval_route_id, step_no) [unique]
   }
 }
+
+Table approval_policies {
+  id uuid [pk]
+  policy_name varchar(100) [not null, unique]
+  organization_id uuid [not null, ref: > organizations.id]
+  request_type_id uuid [not null, ref: > request_types.id]
+  min_amount int [null, Note: "NULLの場合は金額条件なし"]
+  approval_route_id uuid [not null, ref: > approval_routes.id]
+}
+
+Table request_types {
+  id uuid [pk]
+  request_type_name varchar(100) [not null, unique]
+}
