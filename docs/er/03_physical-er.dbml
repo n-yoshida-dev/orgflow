@@ -37,6 +37,14 @@ Table membership_roles {
   }
 }
 
+Enum request_status {
+  in_progress
+  approved
+  returned
+  rejected
+  cancelled
+}
+
 Table requests {
   id uuid [pk]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
