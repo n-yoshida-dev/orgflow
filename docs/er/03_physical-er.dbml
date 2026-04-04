@@ -107,3 +107,27 @@ Table request_types {
   id uuid [pk]
   request_type_name varchar(100) [not null, unique]
 }
+
+Table applied_approval_routes {
+  id uuid [pk]
+  request_id uuid [not null, unique, ref: - requests.id]
+  approval_policy_id uuid [not null, ref: > approval_policies.id]
+}
+
+Table applied_approval_route_steps {
+  id uuid [pk]
+  step_no int [not null]
+  applied_approval_route_id uuid [not null, ref: > applied_approval_routes.id]
+  indexes {
+    (applied_approval_route_id, step_no) [unique]
+  }
+}
+
+Table applied_approval_route_step_approvers {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id]
+  indexes {
+  (user_id, applied_approval_route_step_id) [unique]
+  }
+}
