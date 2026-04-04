@@ -139,3 +139,26 @@ Table applied_approval_route_step_approvers {
   (user_id, applied_approval_route_step_id) [unique]
   }
 }
+
+Enum operation_type {
+  create
+  update
+  delete
+  submit
+  approve
+  return
+  reject
+  cancel
+  login
+  logout
+}
+
+Table audit_logs {
+  id uuid [pk]
+  user_id uuid [not null]
+  actor_organization_id uuid [not null]
+  target_type varchar(100) [not null, Note: "操作対象名"]
+  target_id uuid [not null, Note: "操作対象識別子"]
+  operation_type operation_type [not null, Note: "操作種別"]
+  occurred_at timestamp [not null]
+}
