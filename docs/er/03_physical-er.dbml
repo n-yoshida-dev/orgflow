@@ -38,6 +38,7 @@ Table membership_roles {
 }
 
 Enum request_status {
+  draft
   in_progress
   approved
   returned
