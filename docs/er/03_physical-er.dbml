@@ -25,7 +25,7 @@ Table organization_memberships {
 
 Table roles {
   id uuid [pk]
-  role_name text [not null]
+  role_name text [not null, unique]
 }
 
 Table membership_roles {
