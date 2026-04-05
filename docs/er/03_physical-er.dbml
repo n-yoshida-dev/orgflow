@@ -102,6 +102,15 @@ Table approval_route_steps {
   }
 }
 
+Table approval_route_step_approvers {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  approval_route_step_id uuid [not null, ref: > approval_route_steps.id]
+  indexes {
+  (user_id, approval_route_step_id) [unique]
+  }
+}
+
 Table approval_policies {
   id uuid [pk]
   policy_name varchar(100) [not null, unique]
