@@ -118,7 +118,12 @@ Table approval_policies {
   id uuid [pk]
   policy_name varchar(100) [not null, unique]
   organization_id uuid [not null, ref: > organizations.id]
-  request_type_id uuid [not null, ref: > request_types.id]
+  request_type text [not null,check:
+    `request_type IN (
+      'transportation_expenses',
+      'travel_expenses',
+      'equipment_purchase_expenses'
+    )`]
   min_amount int [null, Note: "NULLの場合は金額条件なし"]
   approval_route_id uuid [not null, ref: > approval_routes.id]
 }
