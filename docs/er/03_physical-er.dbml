@@ -172,8 +172,11 @@ Enum operation_type {
 
 Table audit_logs {
   id uuid [pk]
-  user_id uuid [not null]
-  actor_organization_id uuid [not null]
+  user_id uuid [not null, ref: > users.id]
+  actor_user_display_name text [not null]
+  actor_organization_id uuid [not null,  ref: > organizations.id]
+  actor_organization_name text [not null]
+  actor_user_mail_address text [not null]
   target_type varchar(100) [not null, Note: "操作対象名"]
   target_id uuid [not null, Note: "操作対象識別子"]
   operation_type operation_type [not null, Note: "操作種別"]
