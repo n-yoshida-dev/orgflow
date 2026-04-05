@@ -82,7 +82,7 @@ Table approvals {
   applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
   type approval_type [not null, Note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
   approval_message text [null]
-  created_at timestamp [not null]
+  created_at timestamptz [not null]
   indexes {
     (request_id, applied_approval_route_step_id) [unique]
   }
@@ -169,5 +169,5 @@ Table audit_logs {
   target_type varchar(100) [not null, Note: "操作対象名"]
   target_id uuid [not null, Note: "操作対象識別子"]
   operation_type operation_type [not null, Note: "操作種別"]
-  occurred_at timestamp [not null]
+  occurred_at timestamptz [not null]
 }
