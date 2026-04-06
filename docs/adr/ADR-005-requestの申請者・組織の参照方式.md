@@ -6,22 +6,22 @@
 ## 背景
 
 - request は「誰が」「どの組織に対して」提出した申請かを保持する必要がある
-- 参照先として organization_membership_id を1本持つ案と、user_id と organization_id を直接持つ案があった
+- 参照先として internal_organization_membership.id を1本持つ案と、 users.id と internal_organization.id を直接持つ案があった
 - 決めないと、申請後に申請者が異動した場合に過去 request の帰属が追えなくなるリスクがある
 
 ## 採用した案
 
-- request に user_id と organization_id を直接持つ
+- request に users.id と internal_organization.id を直接持つ
 
 ## 採用理由
 
-- organization_membership は「現在の所属関係」を表すため、異動・削除によって変化しうる
+- internal_organization_membership は「現在の所属関係」を表すため、異動・削除によって変化しうる
 - request が保持すべきは申請時点の帰属という不変の事実であり、現在の所属関係への参照ではない
-- user_id と organization_id を直接持つことで、申請後の組織変更に関わらず申請時点の帰属を追跡できる
+- users.id と internal_organization.id を直接持つことで、申請後の組織変更に関わらず申請時点の帰属を追跡できる
 
 ## 不採用案
 
-- organization_membership_id を1本持つ案: 所属関係が変更・削除された場合に参照が壊れるか意味が変わる
+- internal_organization_membership.id を1本持つ案: 所属関係が変更・削除された場合に参照が壊れるか意味が変わる
 
 ## 受け入れる制約
 

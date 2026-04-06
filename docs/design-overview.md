@@ -1,131 +1,208 @@
 ## 概要
 
-本書は、経費申請アプリで扱う主要な業務概念と、それぞれの役割を整理するための設計概要である。
-目的は、ER図、API設計、認可設計へ進む前に、**各概念が何を表すのか、どの情報をどこで持つのか**を明確にすることである。
+本書は、OrgFlow で扱う主要な業務概念と、それぞれの役割を整理するための設計概要である。  
+目的は、ER図、API設計、認可設計へ進む前に、**各概念が何を表すのか、どの情報をどこで持つのか** を明確にすることである。
+
+OrgFlow は、単なる CRUD アプリではなく、申請・承認・監査・権限制御・データ分離を含む B2B ワークフロー SaaS を題材にする。  
+そのため、状態、履歴、設定、権限、監査、テナント境界を 1 つの概念にまとめず、役割ごとに分けて扱う。
 
 ---
 
 ## 設計方針
 
-本アプリでは、状態、履歴、設定、権限、監査を1つの概念にまとめない。
-それぞれの役割を分けて持つ。特に、次の分離を重視する。
+本アプリでは、次の分離を重視する。
 
-- `request` は、**1つの申請系列のうち、ある1版の申請データ**を表し、その版の現在状態を持つ
-- `approval` は、**その申請に対して誰がいつどんな判断をしたか**を記録する履歴である
+- `request` は、**ある 1 件の申請版**を表し、その版の申請内容と現在状態を持つ
+- `approval` は、**その request に対して誰がいつどんな判断をしたか**を記録する履歴である
 - `approval_policy` は、**どの条件の申請にどの承認ルートを適用するか**を決めるルールである
-- `applied_approval_route` は、**request作成時に確定した承認ルートの保存結果**である
-- `role` は、**その組織で何の操作ができるか**を表す
+- `applied_approval_route` は、**request 作成時に確定した承認ルートの保存結果**である
+- `role` は、**ある所属関係に対して何の操作ができるか**を表す
 - `audit_log` は、**重要操作を後から確認できるように残す記録**であり、申請や承認そのものではない
+- `tenant` は、**契約主体かつデータ分離の最上位単位**である
+- `internal_organization` は、**tenant 内部の部門・課・チーム**を表す
+
+この文書では、特に `tenant` と `internal_organization` を分けて扱う。  
+別 tenant のデータは、明示的に tenant を切り替えない限り参照できない。  
+一方で、同一 tenant 内では、権限があれば複数の internal organization を横断して request や audit_log を参照できる。
+
+---
+
+## テナント境界と内部組織境界
+
+### tenant
+
+`tenant` は、株式会社ABC やサッカークラブのような、データ分離の最上位単位を表す。  
+tenant をまたぐと、設定、request、approval、audit_log は分離される。  
+画面上でも、別 tenant のデータを見るには明示的な tenant 切り替えが必要である。
+
+### internal organization
+
+`internal_organization` は、tenant の内部にある部門・課・チームを表す。  
+例として、株式会社ABC の中の人事部、経理部、営業1課などがこれに当たる。
+
+internal organization は、申請の帰属先、承認ルートの適用先、所属とロールの評価単位として使う。  
+ただし、同一 tenant 内では、権限があれば複数の internal organization を横断した一覧表示や検索を認める。
 
 ---
 
 ## 主要概念
 
+### `tenant`
+
+`tenant` は、契約主体かつデータ分離の最上位単位である。  
+ユーザーは複数 tenant に所属できる。  
+ただし、ある時点で操作対象になるのは 1 つの current tenant である。
+
+current tenant は、一覧取得、監査ログ閲覧、設定変更などの API がどのデータ範囲に対して実行されるかを決める前提になる。
+
+### `internal_organization`
+
+`internal_organization` は、tenant 内部の部門・課・チームを表す。  
+request は、この internal organization に帰属する申請として扱う。  
+approval_policy や承認ルートも、基本的に internal organization 単位で管理する。
+
+### `user`
+
+`user` は、システムを利用する人を表す。  
+ユーザーそのものに直接 role を付与するのではなく、どの tenant / internal organization にどう所属しているかを通して権限を評価する。
+
+### `internal_organization_membership`
+
+`internal_organization_membership` は、user が internal organization に所属しているという関係を表す。  
+1 人の user は複数の internal organization に所属できる。  
+また、同じ user が複数 tenant に所属することもありうる。
+
+この概念は「現在の所属関係」を表すものであり、過去 request の帰属を不変に保持するための参照先そのものではない。
+
+### `membership_role`
+
+`membership_role` internal_organization_membership に対して付与される role を表す。  
+同じ user でも、所属先の internal organization ごとに異なる role を持てる。
+
+ここでいう role は、あくまで「何の操作ができるか」を表す。  
+承認金額条件や承認段数は role ではなく approval_policy 側で扱う。
+
 ### `request`
 
-`request` は、1つの申請版を表す。
-申請内容、その版の現在状態、現在何段目の承認待ちかを保持する。
+`request` は、1 件の申請版を表す。  
+申請内容、その版の現在状態、現在どの承認段にいるかを持つ。
 
-また、申請時点で確定した承認ルートを参照する。
+また、request は**申請時点の不変な事実**として、申請者 user と申請先 internal organization を直接持つ。  
+現在の所属関係を表す internal_organization_membership を参照して過去 request の帰属を表すのではない。
+
+差し戻し後の再申請では既存 request を更新せず、新しい request を作成する。  
+そのため、request は「申請全体」ではなく、「ある系列の中の 1 版」を表す。
 
 ### `approval`
 
-`approval` は、`request` に対して行われた判断の記録である。
-誰が、いつ、承認・差し戻し・却下のどれを行ったかを表す。
+`approval` は、request に対する 1 回の判断履歴を表す。  
+承認、差し戻し、却下などを記録する。
 
-`approval` 自体は、「現在どの段階にいるか」「次に誰が承認するか」といった進行中の情報は持たない。
-それらは `request` 側で管理する。
+approval は現在状態そのものではない。  
+現在その request がどの状態にあるか、どの承認段を処理中かは request 側で管理する。
 
 ### `approval_policy`
 
-`approval_policy` は、承認ルートを決めるルールである。
-たとえば、所属組織、申請種別、金額条件などに応じて、承認段数や承認対象者の条件を決める。
+`approval_policy` は、どの条件の request にどの承認ルートを適用するかを決めるルールである。  
+request 種別、金額条件、internal organization などを基準に評価される。
+
+approval_policy は、操作権限ではない。  
+「誰が何をできるか」は role が担い、  
+「どの申請にどの承認ルートを適用するか」は approval_policy が担う。
+
+### `approval_route`
+
+`approval_route` は、承認段と承認者の並びを表すテンプレートである。  
+複数の approval_policy が同じ approval_route を参照できる。
 
 ### `applied_approval_route`
 
-`applied_approval_route` は、`request` 作成時に `approval_policy` を評価して確定した承認ルートの保存結果である。
-後から `approval_policy` が変わっても、既存の `request` には申請時点で確定した承認ルートを使い続ける。
+`applied_approval_route` は、request 作成時に approval_policy を評価して確定した承認ルートの保存結果である。  
+request 作成後に approval_policy や approval_route が変更されても、既存 request の承認ルートは変わらない。
 
-### `organization`
-
-`organization` は、利用者が所属する組織の単位である。
-また、「どの組織のデータか」「どの組織でその権限が有効か」を決める基準でもある。
-
-### `role`
-
-`role` は操作権限の区分である。
-たとえば、「申請できる」「承認できる」「管理設定を変更できる」といった違いを表す。
-
-`role` は承認段数や金額条件を表さない。
-それらは `approval_policy` 側で扱う。
+この概念により、承認処理・監査・後追い説明を request 単位で安定して行える。
 
 ### `audit_log`
 
-`audit_log` は、重要操作を後から確認するための記録である。
-申請・承認・ユーザー変更・ロール変更・ポリシー変更・ログインなどを記録対象とする。
+`audit_log` は、誰が、どの tenant / internal organization 文脈で、いつ、何をしたかを残す独立した記録である。  
+approval の代用品ではない。
 
-`audit_log` は `request` や `approval` の代わりではない。
-申請データ本体とは別に持つ。
-
-### `organization_membership`
-
-`organization_membership` は、`user` と `organization` の対応関係を表す中間概念である。
-1人の `user` が複数の `organization` に所属でき、1つの `organization` に複数の `user` が所属できるため、この概念を分けて持つ。
-
-また、`role` は `user` に直接付与せず、この `organization_membership` に対して付与する。
+ログイン、申請作成、承認、差し戻し、設定変更、ロール変更など、重要操作を横断的に記録する。  
+同一 tenant 内では、権限があれば複数 internal organization を横断して検索できる。  
+ただし、別 tenant の audit_log は current tenant を切り替えない限り参照できない。
 
 ---
 
-## 概念同士の関係
+## 概念どうしの関係
 
-### `user` と `organization`
-
-`user` と `organization` は多対多の関係である。
-そのため、両者の対応関係は `organization_membership` で管理する。
-
-### `user` と `role`
-
-`user` と `role` は直接結ばない。
-同じ `user` でも組織ごとに権限が変わるため、`role` は `organization_membership` に対して付与する。
-
-### `organization_membership` と `role`
-
-1つの `organization_membership` には、1つ以上の `role` が付与されうる。
-これにより、「同じ利用者が、組織Aでは管理者、組織Bでは申請者」といった状態を表現できる。
-
-### `request` と `approval`
-
-1つの `request` に対して、`approval` は0件以上発生する。
-`approval` は判断履歴であり、`request` の現在状態そのものではない。
-
-### `request` と `approval_policy` / `applied_approval_route`
-
-`request` 作成時には、その時点の `approval_policy` を評価して、適用する承認ルートを決定する。
-その結果を `applied_approval_route` として保存し、以後その `request` はその保存結果を参照する。
-
-### `audit_log` と各概念
-
-`audit_log` は、`request`、`approval`、`approval_policy`、`user` などの対象識別子を保持する。
-これにより、「誰が、どの対象に対して、いつ、何をしたか」を後から追跡できる。
+- 1 つの tenant は複数の internal organization を持つ
+- 1 人の user は複数の internal organization に所属できる
+- internal_organization_membership は user と internal organization の所属関係を表す
+- membership_role は internal_organization_membership に対して role を付与する
+- 1 件の request は 1 つの internal organization に属する
+- 1 件の request は複数の approval を持ちうる
+- 1 件の request は 1 つの applied_approval_route を持つ
+- approval_policy は approval_route を参照し、request 作成時に applied_approval_route へ評価結果が保存される
+- audit_log は request / approval / approval_policy / user などを横断的に記録する
 
 ---
 
 ## 認可の考え方
 
-認可判定では、少なくとも次の条件を確認する。
+認可は、user 単位ではなく、**current tenant 内の internal_organization_membership と membership_role** を通して評価する。  
+同じ user でも、所属する internal organization が変われば、できる操作は変わりうる。
 
-- 利用者が認証済みであること
-- 対象の `request` が属する `organization` において、必要な `role` を持っていること
-- その `request` の現在承認段の対象者であること
-- その `request` に適用された承認ルート上で、その利用者が承認対象者に含まれていること
+ただし、一覧系や検索系では、current tenant 内で権限のある複数 internal organization を横断表示することがある。  
+例として、承認一覧や監査ログ閲覧は、明示的に internal organization を切り替えなくても、権限がある範囲を横断して表示してよい。
 
-認可は画面表示だけでなく、API側でも必ず強制する。
+一方で、別 tenant のデータは current tenant を切り替えない限り参照できない。
 
 ---
 
-## 未確定論点
+## 権限スコープの分離
 
-- `applied_approval_route` をどの単位で保存するか
-- 閲覧権限の細かい条件をどこまで `role` で表すか
-- 代理承認、代理申請を Phase 1 に含めるか
-- 同一承認段に複数承認者がいる場合に、主担当者という概念を持つか
+OrgFlow では、権限を次の 2 つのスコープに分けて扱う。
+
+- `TENANT_ROLE`
+  tenant 全体に対して実行できる管理系操作権限を表す。
+  例: tenant 設定変更、tenant 内ユーザー管理、tenant 単位の請求管理、tenant 全体の監査ログ閲覧
+
+- `ROLE`
+  internal organization への所属関係に対して付与される業務操作権限を表す。
+  例: request 作成、request 承認、request 閲覧、approval policy 管理
+
+この分離により、workspace 切替の対象である tenant と、同一 tenant 内の部門・チームでの業務操作権限を混同しないようにする。
+
+---
+
+## membership の意味
+
+- `TENANT_MEMBERSHIP`
+  user が tenant に所属している事実を表す。
+
+- `INTERNAL_ORGANIZATION_MEMBERSHIP`
+  tenant の中で、user が internal organization に所属している事実を表す。
+
+`INTERNAL_ORGANIZATION_MEMBERSHIP` は tenant の中での配属を表す概念であり、tenant への所属そのものを表す概念ではない。
+
+---
+
+## この文書で固定すること / しないこと
+
+### この文書で固定すること
+
+- tenant と internal organization を分けること
+- request / approval / approval_policy / applied_approval_route / role / audit_log の責務分離
+- role は所属関係に対して付与すること
+- request は申請時点の user と internal organization 帰属を直接持つこと
+- audit_log は独立概念として扱うこと
+
+### この文書でまだ固定しないこと
+
+- internal organization の階層構造をどこまで持つか
+- tenant 切り替えを UI / セッション / トークンのどこで表現するか
+- 監査ログに tenant / internal organization のどの識別子を物理的に持つか
+- API や OpenAPI で tenant 文脈をどの形式で受けるか
+- 承認ルート設定を tenant 共通にするか internal organization ごとに持つかの細部
+
+これらは、論理ER図・物理ER図・API設計で詰める。

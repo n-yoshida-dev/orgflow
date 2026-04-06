@@ -1,0 +1,55 @@
+# 概念ER図ラフ
+
+## 目的
+
+経費申請アプリで扱う主要な概念と、その関係を確認する。  
+この段階では、属性・主キー・外部キーは最小限または未記載とする。
+
+## `AUDIT_LOG` について
+
+`AUDIT_LOG` は、`request`、`approval`、`approval_policy`、`user` などに対する重要操作を記録する独立概念である。  
+この概念ER図では、通常の親子関係のように線を引くと誤解を招きやすいため、関係線は描かない。
+
+## `APPLIED_APPROVAL_ROUTE` について
+
+`APPLIED_APPROVAL_ROUTE` は、`request` 作成時に `approval_policy` を評価して確定した承認ルートの保存結果である。`APPLIED_APPROVAL_ROUTE`には複数の`APPLIED_APPROVAL_ROUTE_STEPS`が紐づき、また、`APPLIED_APPROVAL_ROUTE_STEPS`には複数の`APPLIED_APPROVAL_ROUTE_STEP_APPROVERS`が紐づく。
+詳細は論理ER図で図示するため、概念ER図では`APPLIED_APPROVAL_ROUTE`のみを記載する。
+
+```mermaid
+---
+config:
+  layout: elk
+---
+erDiagram
+  USER
+  TENANT
+  TENANT_MEMBERSHIP
+  TENANT_MEMBERSHIP_ROLES
+  INTERNAL_ORGANIZATION
+  REQUEST
+  APPROVAL
+  APPROVAL_POLICY
+  APPLIED_APPROVAL_ROUTE
+  AUDIT_LOG
+  INTERNAL_ORGANIZATION_MEMBERSHIP
+  MEMBERSHIP_ROLES
+  ROLE
+  TENANT_ROLE
+
+  USER ||--o{ REQUEST : 作成する
+  USER ||--o{ APPROVAL : 判断を記録する
+  USER ||--|{ TENANT_MEMBERSHIP : tenantへの所属を持つ
+  TENANT ||--o{ TENANT_MEMBERSHIP : 所属者を持つ
+  TENANT ||--|{ INTERNAL_ORGANIZATION : 所有する
+  TENANT_MEMBERSHIP ||--|{ TENANT_MEMBERSHIP_ROLES : 付与されたロールを持つ
+  TENANT_MEMBERSHIP_ROLES }o--|| TENANT_ROLE: 権限を所有する
+  TENANT_MEMBERSHIP ||--|{ INTERNAL_ORGANIZATION_MEMBERSHIP : 所属部署情報を持つ
+  INTERNAL_ORGANIZATION ||--o{ INTERNAL_ORGANIZATION_MEMBERSHIP : 所属者情報を持つ
+
+  REQUEST }o--|| INTERNAL_ORGANIZATION : 所属する
+  REQUEST ||--o{ APPROVAL : 判断履歴を持つ
+  REQUEST ||--|| APPLIED_APPROVAL_ROUTE : 申請時の承認ルートが紐づく
+  INTERNAL_ORGANIZATION_MEMBERSHIP ||--o{ MEMBERSHIP_ROLES : 付与されたロールを持つ
+  ROLE ||--o{ MEMBERSHIP_ROLES : 所属に対して付与される
+  INTERNAL_ORGANIZATION ||--o{ APPROVAL_POLICY : 承認ルールを持つ
+```
