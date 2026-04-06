@@ -33,7 +33,7 @@ Table internal_organizations {
 Table internal_organization_memberships {
   id uuid [pk]
   user_id uuid [not null, ref: > users.id ]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   indexes {
   (user_id, organization_id) [unique]
   }
@@ -47,7 +47,7 @@ Table roles {
 
 Table membership_roles {
   id uuid [pk]
-  organization_membership_id uuid [not null, ref: > organization_memberships.id]
+  organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
   role_id uuid [not null, ref: > roles.id]
   indexes {
   (organization_membership_id, role_id) [unique]
@@ -70,7 +70,7 @@ Table requests {
   status request_status [not null]
   current_applied_approval_route_step_id uuid [null, ref: > applied_approval_route_steps.id]
   applicant_user_id uuid [not null, ref: > users.id]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   request_type varchar [not null]
   amount int [null]
   created_at timestamp [not null]
@@ -101,7 +101,7 @@ Table approvals  {
 
 Table approval_policy {
   id uuid [pk]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   request_type varchar [not null]
   min_amount int [null, Note: "NULLの場合は金額条件なし"]
   approval_route_id uuid [not null, ref: > approval_route.id]
@@ -174,7 +174,7 @@ Enum operation_type {
 Table audit_logs {
   id uuid [pk]
   user_id uuid [not null, ref: > users.id]
-  actor_organization_id uuid [not null, ref: > organizations.id]
+  actor_organization_id uuid [not null, ref: > internal_organizations.id]
   target_type varchar [not null, Note: "操作対象名"]
   target_id uuid [not null, Note: "操作対象識別子"]
   operation_type operation_type [not null, Note: "操作種別"]
