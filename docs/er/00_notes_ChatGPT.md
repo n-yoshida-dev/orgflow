@@ -115,3 +115,87 @@
 
 - 申請者本人、承認者、管理者以外に、上位者や同組織管理者がどこまで過去申請を閲覧できるかは未確定
 - これは OpenAPI と認可設計の段階で詰める
+
+## 今回の物理ER図で確定したこと
+
+### users の持ち方
+
+- `users` は業務上の利用者そのものを表す
+- Phase 1 では、認証情報を別テーブルへ分離せず、`users` に次を持つ
+  - `display_name`
+  - `login_id`
+  - `hashed_password`
+  - `mail_address`
+- `id` は内部主キーであり、業務上の表示名やログインIDとは役割を分ける
+
+### request_status の確定
+
+- Phase 1 の request_status は次の 6 つで確定した
+  - `draft`
+  - `in_progress`
+  - `approved`
+  - `returned`
+  - `rejected`
+  - `cancelled`
+- `submitted` は独立状態にせず、申請後は `in_progress` で表現する
+- 差し戻し後の再申請では、既存 request を更新せず、新しい request を作る
+- 旧版 request は `returned` のまま残す
+
+### request.amount の扱い
+
+- `amount` は `NOT NULL` とし、DB制約では `amount >= 0` を許容する
+- ただし、0 円を許容するのは `draft` のみという業務ルールを別途持つ
+- `draft` から `in_progress` へ遷移する時点では、0 円申請を不正として扱う
+- この検証はフロントエンドだけでなく、バックエンド側でも行う前提とする
+
+### request_type の扱い
+
+- Phase 1 では `request_type` はマスタテーブル参照にせず、`text + CHECK` で持つ
+- `requests.request_type` と `approval_policies.request_type` は同じ候補値を使う
+- 将来的に管理UIや有効/無効管理が必要になった場合は、`request_types` テーブル化を見直す余地を残す
+- ただし、Phase 1 の時点では `request_types` テーブルは採用しない
+
+### 承認ルート定義と適用結果の分離
+
+- テンプレート側には次を持つ
+  - `approval_routes`
+  - `approval_route_steps`
+  - `approval_route_step_approvers`
+- request 作成時の確定結果側には次を持つ
+  - `applied_approval_routes`
+  - `applied_approval_route_steps`
+  - `applied_approval_route_step_approvers`
+- この分離により、承認ルート定義が後から変更されても、既存 request に適用済みの承認ルートは変わらない
+
+### audit_logs の保持方針
+
+- audit_log は approval の代替ではなく、横断的な監査記録として独立して持つ
+- 操作対象は `target_type` と `target_id` で保持し、`target_id` には外部キーを置かない
+- 一方で、操作主体は次を両方持つ
+  - 機械的追跡のための ID
+    - `user_id`
+    - `actor_organization_id`
+  - 監査画面可読性のための表示用スナップショット
+    - `actor_user_display_name`
+    - `actor_user_mail_address`
+    - `actor_organization_name`
+- これにより、「後から追えること」と「人が監査画面で読めること」を両立する
+
+### インデックス設計で学んだこと
+
+- 主キーや一意制約は、意味だけでなく自動インデックス生成も伴う
+- FK だから無条件に index を付けるのではなく、
+  「その列でどんな検索を行うか」で判断する
+- `requests` では、少なくとも次を採用した
+  - `applicant_user_id`
+  - `organization_id`
+  - `(organization_id, status)`
+  - `(request_series_id, version_no) [unique]`
+
+## 今回、新たに残った未確定論点
+
+- approval_policy の複数候補が同時にマッチした場合の優先順位
+- users / organizations の物理削除戦略
+- audit_logs に対する親側削除方針と FK の見直し条件
+- request_type を将来マスタテーブル化するかどうか
+- 外部 IdP 導入時に users と認証情報を分離するかどうか
