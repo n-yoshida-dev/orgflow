@@ -2,7 +2,8 @@
 .git/
 
 # 一時メモ・思考ログ
-docs/temp.md
+.local/
+notes/
 
 # ローカル開発ノイズ
 .idea/
@@ -18,6 +19,7 @@ node_modules/
 target/
 build/
 dist/
+*.dbdiagram
 
 # 機微情報
 .env
