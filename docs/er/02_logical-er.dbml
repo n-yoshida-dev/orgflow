@@ -55,6 +55,14 @@ Table membership_roles {
   Note: "組織メンバーシップとロールの組み合わせ"
 }
 
+Enum request_status {
+  in_progress
+  approved
+  returned
+  rejected
+  cancelled
+}
+
 Table requests {
   id uuid [pk]
   request_series_id uuid [not null]
@@ -72,12 +80,10 @@ Table requests {
   Note: "申請本体"
 }
 
-Enum request_status {
-  in_progress
+Enum approval_type {
   approved
   returned
   rejected
-  cancelled
 }
 
 Table approvals  {
@@ -91,12 +97,6 @@ Table approvals  {
     (request_id, applied_approval_route_step_id) [unique]
   }
   Note: "承認本体"
-}
-
-Enum approval_type {
-  approved
-  returned
-  rejected
 }
 
 Table approval_policy {
@@ -158,17 +158,6 @@ Table applied_approval_route_step_approvers {
   Note: "決定済みの承認ルートの段数毎の承認者"
 }
 
-Table audit_logs {
-  id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
-  actor_organization_id uuid [not null, ref: > organizations.id]
-  target_type varchar [not null, Note: "操作対象名"]
-  target_id uuid [not null, Note: "操作対象識別子"]
-  operation_type operation_type [not null, Note: "操作種別"]
-  occurred_at timestamp [not null]
-  Note: "監査ログ"
-}
-
 Enum operation_type {
   create
   update
@@ -180,4 +169,15 @@ Enum operation_type {
   cancel
   login
   logout
+}
+
+Table audit_logs {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  actor_organization_id uuid [not null, ref: > organizations.id]
+  target_type varchar [not null, Note: "操作対象名"]
+  target_id uuid [not null, Note: "操作対象識別子"]
+  operation_type operation_type [not null, Note: "操作種別"]
+  occurred_at timestamp [not null]
+  Note: "監査ログ"
 }
