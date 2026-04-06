@@ -1,6 +1,28 @@
+Table tenant {
+  id uuid [pk]
+  name varchar(100) [not null, unique]
+}
+
 Table users {
   id uuid [pk]
   Note: "本システムを利用するユーザー"
+}
+
+Table tenant_memberships {
+  id uuid [pk]
+  tenant_id uuid [not null, ref: > tenant.id]
+  user_id uuid [not null, ref: > users.id]
+}
+
+Table tenant_roles {
+  id uuid [pk]
+  name varchar(100) [not null]
+}
+
+Table tenant_membership_roles {
+  id uuid [pk]
+  tenant_membership_id uuid [not null, ref: > tenant_memberships.id]
+  tenant_role_id uuid [not null, ref: > tenant_roles.id]
 }
 
 Table organizations {
