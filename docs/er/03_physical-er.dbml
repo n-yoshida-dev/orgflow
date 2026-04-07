@@ -40,15 +40,15 @@ Table tenant_membership_roles {
   }
 }
 
-Table organizations {
+Table internal_organizations {
   id uuid [pk]
   organization_name text [not null, unique]
 }
 
-Table organization_memberships {
+Table internal_organization_memberships {
   id uuid [pk]
   user_id uuid [not null, ref: > users.id]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   indexes {
     (user_id, organization_id) [unique]
   }
@@ -61,7 +61,7 @@ Table roles {
 
 Table membership_roles {
   id uuid [pk]
-  organization_membership_id uuid [not null, ref: > organization_memberships.id]
+  organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
   role_id uuid [not null, ref: > roles.id]
   indexes {
     (role_id, organization_membership_id) [unique]
@@ -84,7 +84,7 @@ Table requests {
   status request_status [not null]
   current_applied_approval_route_step_id uuid [null, ref: > applied_approval_route_steps.id]
   applicant_user_id uuid [not null, ref: > users.id]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   request_type text [not null,check:
     `request_type IN (
       'transportation_expenses',
@@ -146,7 +146,7 @@ Table approval_route_step_approvers {
 Table approval_policies {
   id uuid [pk]
   policy_name varchar(100) [not null, unique]
-  organization_id uuid [not null, ref: > organizations.id]
+  organization_id uuid [not null, ref: > internal_organizations.id]
   request_type text [not null,check:
     `request_type IN (
       'transportation_expenses',
@@ -203,7 +203,7 @@ Table audit_logs {
   id uuid [pk]
   actor_user_id uuid [not null, ref: > users.id]
   actor_user_display_name text [not null]
-  actor_organization_id uuid [not null,  ref: > organizations.id]
+  actor_organization_id uuid [not null,  ref: > internal_organizations.id]
   actor_organization_name text [not null]
   actor_user_mail_address text [not null]
   target_type varchar(100) [not null, Note: "操作対象名"]
