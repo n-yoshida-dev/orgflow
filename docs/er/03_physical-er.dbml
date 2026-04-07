@@ -57,7 +57,6 @@ Table internal_organization_memberships {
   indexes {
   (tenant_membership_id, internal_organization_id) [unique]
   }
-  Note: "ユーザーと組織の組み合わせ"
 }
 Ref: internal_organization_memberships.(tenant_membership_id, tenant_id) > tenant_memberships.(id, tenant_id)
 Ref: internal_organization_memberships.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
@@ -69,10 +68,10 @@ Table roles {
 
 Table membership_roles {
   id uuid [pk]
-  organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
+  internal_organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
   role_id uuid [not null, ref: > roles.id]
   indexes {
-    (role_id, organization_membership_id) [unique]
+    (role_id, internal_organization_membership_id) [unique]
   }
 }
 
@@ -120,11 +119,28 @@ Table approvals {
   user_id uuid [not null, ref: > users.id]
   request_id uuid [not null, ref: > requests.id]
   applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
-  type approval_type [not null, Note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
+  type approval_type [not null, note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
   approval_message text [null]
   created_at timestamptz [not null]
   indexes {
     (request_id, applied_approval_route_step_id) [unique]
+  }
+}
+
+Table approval_policies {
+  id uuid [pk]
+  policy_name varchar(100) [not null, unique]
+  internal_organization_id uuid [not null, ref: > internal_organizations.id]
+  request_type text [not null,check:
+    `request_type IN (
+      'transportation_expenses',
+      'travel_expenses',
+      'equipment_purchase_expenses'
+    )`]
+  min_amount int [not null, note: "0の場合は金額条件なし"]
+  approval_route_id uuid [not null, ref: > approval_routes.id]
+  indexes {
+  (internal_organization_id, request_type, min_amount) [unique]
   }
 }
 
@@ -149,25 +165,6 @@ Table approval_route_step_approvers {
   indexes {
   (user_id, approval_route_step_id) [unique]
   }
-}
-
-Table approval_policies {
-  id uuid [pk]
-  policy_name varchar(100) [not null, unique]
-  organization_id uuid [not null, ref: > internal_organizations.id]
-  request_type text [not null,check:
-    `request_type IN (
-      'transportation_expenses',
-      'travel_expenses',
-      'equipment_purchase_expenses'
-    )`]
-  min_amount int [null, note: "NULLの場合は金額条件なし"]
-  approval_route_id uuid [not null, ref: > approval_routes.id]
-}
-
-Table request_types {
-  id uuid [pk]
-  request_type_name varchar(100) [not null, unique]
 }
 
 Table applied_approval_routes {
@@ -209,10 +206,11 @@ Enum operation_type {
 
 Table audit_logs {
   id uuid [pk]
+  actor_tenant_id uuid [not null, ref: > tenants.id]
   actor_user_id uuid [not null, ref: > users.id]
   actor_user_display_name text [not null]
-  actor_organization_id uuid [not null,  ref: > internal_organizations.id]
-  actor_organization_name text [not null]
+  actor_internal_organization_id uuid [not null,  ref: > internal_organizations.id]
+  actor_internal_organization_name text [not null]
   actor_user_mail_address text [not null]
   target_type varchar(100) [not null, Note: "操作対象名"]
   target_id uuid [not null, Note: "操作対象識別子"]
