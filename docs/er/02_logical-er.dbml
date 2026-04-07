@@ -1,4 +1,4 @@
-Table tenant {
+Table tenants {
   id uuid [pk]
   name varchar(100) [not null, unique]
 }
@@ -10,52 +10,68 @@ Table users {
 
 Table tenant_memberships {
   id uuid [pk]
-  tenant_id uuid [not null, ref: > tenant.id]
+  tenant_id uuid [not null, ref: > tenants.id]
   user_id uuid [not null, ref: > users.id]
+  indexes {
+  (id, tenant_id) [unique]
+  (tenant_id, user_id) [unique]
+  }
 }
 
 Table tenant_roles {
   id uuid [pk]
-  name varchar(100) [not null]
+  name varchar(100) [not null, unique]
 }
 
 Table tenant_membership_roles {
   id uuid [pk]
   tenant_membership_id uuid [not null, ref: > tenant_memberships.id]
   tenant_role_id uuid [not null, ref: > tenant_roles.id]
+  indexes {
+  (tenant_membership_id, tenant_role_id) [unique]
+  }
 }
 
 Table internal_organizations {
   id uuid [pk]
+  tenant_id uuid [not null, ref: > tenants.id]
+  indexes {
+  (id, tenant_id) [unique]
+  }
   Note: "ユーザーが所属する組織"
 }
 
 Table internal_organization_memberships {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id ]
-  organization_id uuid [not null, ref: > internal_organizations.id]
+  tenant_id uuid [not null, ref: > tenants.id]
+  tenant_membership_id uuid [not null]
+  internal_organization_id uuid [not null]
   indexes {
-  (user_id, organization_id) [unique]
+  (tenant_membership_id, internal_organization_id) [unique]
   }
-  Note: "ユーザーと組織の組み合わせt"
+  Note: "ユーザーと組織の組み合わせ"
 }
+Ref: internal_organization_memberships.(tenant_membership_id, tenant_id) > tenant_memberships.(id, tenant_id)
+Ref: internal_organization_memberships.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
 
 Table roles {
   id uuid [pk]
+  name varchar(100) [not null, unique]
   Note: "本システムでどのような役割を行えるかを示す権限"
 }
 
 Table membership_roles {
   id uuid [pk]
-  organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
+  internal_organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
   role_id uuid [not null, ref: > roles.id]
   indexes {
-  (organization_membership_id, role_id) [unique]
+  (internal_organization_membership_id, role_id) [unique]
   }
   Note: "組織メンバーシップとロールの組み合わせ"
 }
 
 Enum request_status {
+  draft
   in_progress
   approved
   returned
@@ -70,10 +86,15 @@ Table requests {
   status request_status [not null]
   current_applied_approval_route_step_id uuid [null, ref: > applied_approval_route_steps.id]
   applicant_user_id uuid [not null, ref: > users.id]
-  organization_id uuid [not null, ref: > internal_organizations.id]
-  request_type varchar [not null]
+  internal_organization_id uuid [not null, ref: > internal_organizations.id]
+  request_type text [not null,check:
+    `request_type IN (
+      'transportation_expenses',
+      'travel_expenses',
+      'equipment_purchase_expenses'
+    )`]
   amount int [null]
-  created_at timestamp [not null]
+  created_at timestamptz [not null]
   indexes {
   (request_series_id, version_no) [unique]
   }
@@ -91,24 +112,32 @@ Table approvals  {
   user_id uuid [not null, ref: > users.id]
   request_id uuid [not null, ref: > requests.id]
   applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
-  type approval_type [not null, Note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
-  created_at timestamp [not null]
+  type approval_type [not null, note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
+  created_at timestamptz [not null]
   indexes {
     (request_id, applied_approval_route_step_id) [unique]
   }
   Note: "承認本体"
 }
 
-Table approval_policy {
+Table approval_policies {
   id uuid [pk]
-  organization_id uuid [not null, ref: > internal_organizations.id]
-  request_type varchar [not null]
-  min_amount int [null, Note: "NULLの場合は金額条件なし"]
-  approval_route_id uuid [not null, ref: > approval_route.id]
+  internal_organization_id uuid [not null, ref: > internal_organizations.id]
+  request_type text [not null,check:
+    `request_type IN (
+      'transportation_expenses',
+      'travel_expenses',
+      'equipment_purchase_expenses'
+    )`]
+  min_amount int [not null, note: "0の場合は金額条件なし"]
+  approval_route_id uuid [not null, ref: > approval_routes.id]
+  indexes {
+  (internal_organization_id, request_type, min_amount) [unique]
+  }
   Note: "承認ルール"
 }
 
-Table approval_route {
+Table approval_routes {
   id uuid [pk]
   name varchar [not null]
 }
@@ -116,7 +145,7 @@ Table approval_route {
 Table approval_route_steps {
   id uuid [pk]
   step_no int [not null]
-  approval_route_id uuid [not null, ref: > approval_route.id]
+  approval_route_id uuid [not null, ref: > approval_routes.id]
   indexes {
   (approval_route_id, step_no) [unique]
   }
@@ -134,7 +163,7 @@ Table approval_route_step_approvers {
 Table applied_approval_routes {
   id uuid [pk]
   request_id uuid [not null, unique, ref: - requests.id]
-  approval_policy_id uuid [not null, ref: > approval_policy.id]
+  approval_policy_id uuid [not null, ref: > approval_policies.id]
   Note: "決定済みの承認ルート"
 }
 
@@ -173,11 +202,15 @@ Enum operation_type {
 
 Table audit_logs {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
-  actor_organization_id uuid [not null, ref: > internal_organizations.id]
-  target_type varchar [not null, Note: "操作対象名"]
-  target_id uuid [not null, Note: "操作対象識別子"]
-  operation_type operation_type [not null, Note: "操作種別"]
-  occurred_at timestamp [not null]
+  actor_tenant_id uuid [not null, ref: > tenants.id]
+  actor_user_id uuid [not null, ref: > users.id]
+  actor_user_display_name text [not null]
+  actor_internal_organization_id uuid [null, ref: > internal_organizations.id, note: "tenant スコープ操作では nullable"]
+  actor_internal_organization_name text [null]
+  actor_user_mail_address text [not null]
+  target_type varchar(100) [not null, note: "操作対象名"]
+  target_id uuid [not null, note: "操作対象識別子"]
+  operation_type operation_type [not null, note: "操作種別"]
+  occurred_at timestamptz [not null]
   Note: "監査ログ"
 }
