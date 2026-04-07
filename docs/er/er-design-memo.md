@@ -25,3 +25,31 @@
 `MEMBERSHIP_ROLES` は、internal_organization_membership に対して role が付与されている事実を表す。
 
 この分離により、tenant 切替、tenant 全体管理、tenant 内部の部門権限を別レイヤーで説明できるようにする。
+
+## physical ER で tenant 整合性を保証する方針
+
+`internal_organization_memberships` は、tenant_membership と internal_organization の両方を参照する。
+
+論理ER図では `tenant_membership_id` と `internal_organization_id` を持つが、
+physical ER では tenant 一致を DB 制約で保証する前提とする。
+
+そのため、physical ER では必要に応じて child 側に `tenant_id` を持たせ、
+複合FKにより次を保証する。
+
+- internal_organization_memberships の tenant_membership は、同じ tenant の membership であること
+- internal_organization_memberships の internal_organization は、同じ tenant に属すること
+
+## approval_policy.min_amount の Phase 1 方針
+
+Phase 1 では `min_amount = 0` を「金額条件なし」とみなす。  
+`NULL` による条件なし表現は採らない。
+
+理由:
+
+- unique 制約の扱いを単純化しやすい
+- Phase 1 では業務ルールの説明可能性を優先するため
+
+## approver の簡略化
+
+Phase 1 では、共通ルート定義側・適用結果側ともに approver は `user_id` の直参照で持つ。  
+tenant 所属や internal organization 所属の整合性は、DB ではなくアプリケーション側の業務ルールでチェックする。

@@ -187,6 +187,33 @@ OrgFlow では、権限を次の 2 つのスコープに分けて扱う。
 
 ---
 
+## tenant 境界とデータ分離
+
+OrgFlow は Phase 1 では shared DB 前提で構成する。  
+別 tenant のデータは current tenant を切り替えない限り参照できない。
+
+この前提で、データ分離の最上位単位を `tenant` とし、
+tenant の内部にある部門・課・チームを `internal organization` とする。
+
+- `tenant`
+  契約主体かつデータ分離の最上位単位
+- `internal organization`
+  tenant 内部の部門・課・チーム
+
+承認一覧や監査ログ閲覧は、current tenant 内で複数 internal organization を横断できる。
+ただし別 tenant のデータは current tenant を切り替えない限り見えない。
+
+## tenant スコープ権限と internal organization スコープ権限
+
+OrgFlow では権限を 2 つのスコープに分ける。
+
+- `TENANT_ROLE`
+  tenant 全体に対して実行できる管理系操作権限
+- `ROLE`
+  internal organization への所属関係に対して付与される業務操作権限
+
+この分離により、tenant 切替の対象と、同一 tenant 内の業務権限を混同しないようにする。
+
 ## この文書で固定すること / しないこと
 
 ### この文書で固定すること

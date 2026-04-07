@@ -124,7 +124,7 @@ Table approval_policies {
       'travel_expenses',
       'equipment_purchase_expenses'
     )`]
-  min_amount int [null, Note: "NULLの場合は金額条件なし"]
+  min_amount int [null, note: "NULLの場合は金額条件なし"]
   approval_route_id uuid [not null, ref: > approval_routes.id]
 }
 
@@ -172,7 +172,7 @@ Enum operation_type {
 
 Table audit_logs {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
+  actor_user_id uuid [not null, ref: > users.id]
   actor_user_display_name text [not null]
   actor_organization_id uuid [not null,  ref: > organizations.id]
   actor_organization_name text [not null]
