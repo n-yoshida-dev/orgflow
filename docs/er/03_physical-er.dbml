@@ -42,17 +42,25 @@ Table tenant_membership_roles {
 
 Table internal_organizations {
   id uuid [pk]
+  tenant_id uuid [not null, ref: > tenants.id]
   organization_name text [not null, unique]
+  indexes {
+  (id, tenant_id) [unique]
+  }
 }
 
 Table internal_organization_memberships {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
-  organization_id uuid [not null, ref: > internal_organizations.id]
+  tenant_id uuid [not null, ref: > tenants.id]
+  tenant_membership_id uuid [not null]
+  internal_organization_id uuid [not null]
   indexes {
-    (user_id, organization_id) [unique]
+  (tenant_membership_id, internal_organization_id) [unique]
   }
+  Note: "ユーザーと組織の組み合わせ"
 }
+Ref: internal_organization_memberships.(tenant_membership_id, tenant_id) > tenant_memberships.(id, tenant_id)
+Ref: internal_organization_memberships.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
 
 Table roles {
   id uuid [pk]
