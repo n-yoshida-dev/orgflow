@@ -260,6 +260,32 @@ Phase 1 では、少なくとも次を監査対象に含める。
 
 ---
 
+## current tenant の扱い
+
+- 別 tenant のデータは current tenant を切り替えない限り参照できない
+- 承認一覧は current tenant 内で、自分が承認権限を持つ複数 internal organization の request を横断表示できる
+- 監査ログ閲覧は current tenant 内で、閲覧権限がある複数 internal organization を横断検索できる
+- 申請作成は current tenant 内で、申請対象 internal organization を選ぶ
+
+## approval_policy の金額条件
+
+Phase 1 では `approval_policy.min_amount = 0` を「金額条件なし」とみなす。
+
+- `min_amount > 0` の場合: 指定金額以上で適用される
+- `min_amount = 0` の場合: 金額条件なしで適用される
+
+同一 `internal_organization_id` / `request_type` に対して複数候補がマッチする場合は、  
+**`min_amount` が最大の policy を採用する**。
+
+## 承認者の参照方針
+
+Phase 1 では、共通ルート定義側・適用結果側ともに、承認者は `user_id` の直参照で表す。
+
+- `approval_route_step_approvers.user_id`
+- `applied_approval_route_step_approvers.user_id`
+
+ただし、対象 user が current tenant に所属していることは、アプリケーション側でチェックする。
+
 ## Phase 1 で意図的に広げないこと
 
 次は、将来の論点として扱い、Phase 1 では主対象にしない。
