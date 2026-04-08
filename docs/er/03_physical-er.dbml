@@ -43,9 +43,10 @@ Table tenant_membership_roles {
 Table internal_organizations {
   id uuid [pk]
   tenant_id uuid [not null, ref: > tenants.id]
-  internal_organization_name text [not null, unique]
+  internal_organization_name text [not null]
   indexes {
   (id, tenant_id) [unique]
+  (tenant_id, internal_organization_name) [unique]
   }
 }
 
@@ -86,12 +87,13 @@ Enum request_status {
 
 Table requests {
   id uuid [pk]
+  tenant_id uuid [not null, ref: > tenants.id]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
   version_no int [not null, check: `version_no >= 1`, note: '採番はアプリ側で行う']
   status request_status [not null]
-  current_applied_approval_route_step_id uuid [null, ref: > applied_approval_route_steps.id]
-  applicant_user_id uuid [not null, ref: > users.id]
-  internal_organization_id uuid [not null, ref: > internal_organizations.id]
+  current_applied_approval_route_step_id uuid [null]
+  applicant_user_id uuid [not null]
+  internal_organization_id uuid [not null]
   request_type text [not null,check:
     `request_type IN (
       'transportation_expenses',
@@ -107,6 +109,9 @@ Table requests {
     (request_series_id, version_no) [unique]
   }
 }
+Ref: requests.(id, current_applied_approval_route_step_id) > applied_approval_route_steps.(request_id, id)
+Ref: requests.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
+Ref: requests.(tenant_id, applicant_user_id) > tenant_memberships.(tenant_id, user_id)
 
 Enum approval_type {
   approved
@@ -118,7 +123,7 @@ Table approvals {
   id uuid [pk]
   user_id uuid [not null, ref: > users.id]
   request_id uuid [not null, ref: > requests.id]
-  applied_approval_route_step_id uuid [not null, ref: > applied_approval_route_steps.id , Note:"どの承認段に対する承認か"]
+  applied_approval_route_step_id uuid [not null, note:"どの承認段に対する承認か"]
   type approval_type [not null, note:"承認の種類は何か（承認 / 差し戻し / 却下）"]
   approval_message text [null]
   created_at timestamptz [not null]
@@ -126,9 +131,11 @@ Table approvals {
     (request_id, applied_approval_route_step_id) [unique]
   }
 }
+Ref: approvals.(request_id, applied_approval_route_step_id) > applied_approval_route_steps.(request_id, id)
 
 Table approval_policies {
   id uuid [pk]
+  tenant_id uuid [not null, ref: > tenants.id]
   policy_name varchar(100) [not null, unique]
   internal_organization_id uuid [not null, ref: > internal_organizations.id]
   request_type text [not null,check:
@@ -140,13 +147,19 @@ Table approval_policies {
   min_amount int [not null, note: "0の場合は金額条件なし"]
   approval_route_id uuid [not null, ref: > approval_routes.id]
   indexes {
-  (internal_organization_id, request_type, min_amount) [unique]
+  (tenant_id, policy_name) [unique]
+  (tenant_id, internal_organization_id, request_type, min_amount) [unique]
+
   }
 }
 
 Table approval_routes {
   id uuid [pk]
+  tenant_id uuid [not null, ref: > tenants.id]
   name varchar(100) [not null]
+  indexes {
+  (tenant_id, name) [unique]
+  }
 }
 
 Table approval_route_steps {
@@ -171,16 +184,23 @@ Table applied_approval_routes {
   id uuid [pk]
   request_id uuid [not null, unique, ref: - requests.id]
   approval_policy_id uuid [not null, ref: > approval_policies.id]
+  indexes {
+  (id, request_id) [unique]
+  }
 }
 
 Table applied_approval_route_steps {
   id uuid [pk]
   step_no int [not null]
-  applied_approval_route_id uuid [not null, ref: > applied_approval_routes.id]
+  applied_approval_route_id uuid [not null]
+  request_id uuid [not null, ref: > requests.id]
   indexes {
+    (request_id, id) [unique]
     (applied_approval_route_id, step_no) [unique]
   }
 }
+Ref: applied_approval_route_steps.(applied_approval_route_id, request_id) > applied_approval_routes.(id, request_id)
+
 
 Table applied_approval_route_step_approvers {
   id uuid [pk]
