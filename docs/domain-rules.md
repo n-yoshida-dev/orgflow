@@ -183,6 +183,19 @@ Phase 1 では、最低限次の遷移を認める。
 差し戻し後の再申請は、`returned` を `in_progress` に戻すのではなく、新しい request を作ることで表現する。  
 そのため、旧版 request は `returned` のまま残る。
 
+### request 作成時の対象 internal organization
+
+- request 作成は current tenant 内で行う
+- 申請者は、current tenant 内の任意の internal organization を自由に選べるわけではない
+- 選択できるのは、**その user が所属している internal organization のうち、request 作成を許可する membership_role が付与されているもの** に限る
+- したがって、「申請対象 internal organization を選ぶ」とは、current tenant 内で権限のある所属先から選ぶ、という意味である
+
+### request の帰属と現在所属の違い
+
+- request は申請時点の applicant_user と internal organization 帰属を直接持つ
+- これは過去 request の意味を不変に保つためであり、現在の所属関係そのものを参照し続けるためではない
+- 一方で、request 作成を許可するかどうかの判定には、current tenant / internal_organization_membership / membership_role を使う
+
 ### 金額に関する補足ルール
 
 - `draft` では `amount = 0` を許容する

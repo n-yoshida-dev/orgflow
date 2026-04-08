@@ -147,6 +147,26 @@ approval の代用品ではない。
 
 ---
 
+## request と認可の関係
+
+`request` は申請時点の user と internal organization の帰属を直接持つ。
+ただし、request を作成できるかどうかの判定は、user 単体ではなく、current tenant 内の `internal_organization_membership` と `membership_role` を通して評価する。
+
+このため、request の保存対象と、request 作成の認可根拠は一致しない。
+
+- 保存対象:
+  - applicant_user
+  - internal_organization
+  - request 自体の状態と版
+- 認可根拠:
+  - current tenant
+  - internal_organization_membership
+  - membership_role
+
+この分離により、過去 request の帰属を不変に保ちながら、現在の権限判定は membership ベースで柔軟に行える。
+
+---
+
 ## 認可の考え方
 
 認可は、user 単位ではなく、**current tenant 内の internal_organization_membership と membership_role** を通して評価する。  
@@ -213,6 +233,24 @@ OrgFlow では権限を 2 つのスコープに分ける。
   internal organization への所属関係に対して付与される業務操作権限
 
 この分離により、tenant 切替の対象と、同一 tenant 内の業務権限を混同しないようにする。
+
+## physical ER図の位置づけ
+
+physical ER図では、次を優先して表現する。
+
+- tenant 境界
+- request / approval / applied_approval_route の参照整合
+- 主キー / 外部キー / 一意制約 / CHECK 制約
+- DB が保持すべき不変条件
+
+一方で、request 作成可否のような業務操作単位の認可条件は、OpenAPI 設計と API 実装で扱う前提とする。
+
+そのため、OpenAPI の業務操作一覧へ進む段階では、少なくとも次が説明できる必要がある。
+
+- どの user が
+- どの current tenant で
+- どの internal organization に対して
+- どの条件で request を作成できるか
 
 ## この文書で固定すること / しないこと
 
