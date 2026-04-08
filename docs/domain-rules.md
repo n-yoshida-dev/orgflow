@@ -1,29 +1,36 @@
-# docs/domain-rules.md
+# 業務ルール
 
-## 概要
+この文書は、OrgFlow Phase 1 で固定して扱う業務ルールを整理するための文書です。  
+ここで扱うのは、画面や API の細かな仕様ではなく、用語、境界、状態遷移、権限、承認フロー、監査の前提です。
 
-この文書は、OrgFlow Phase 1 における業務ルールを整理するための文書である。
+## この文書で固定すること
 
-ここで扱うのは、画面やAPIの細かな仕様ではなく、次のような「設計の前提になる業務ルール」である。
-
-- どの概念をどういう意味で分けるか
-- 誰がどの操作を行うか
-- request がどの状態からどの状態へ遷移するか
-- approval と audit_log をどう使い分けるか
+- tenant / internal_organization の境界ルール
+- tenant スコープ権限と internal_organization スコープ権限の分け方
+- request の状態遷移
+- 承認フローの完了条件
 - 承認ルートをいつ確定し、どこまで保存するか
-- tenant と internal organization の境界をどう扱うか
+- audit_log をどういう場面で記録対象にするか
 
-設計判断の理由そのものは ADR に残す。  
-この文書では、「このアプリでは何をどう扱うか」を業務ルールとして固定する。
+## この文書で固定しないこと
 
----
+- 採用した理由や不採用案
+- 概念の詳細な責務説明
+- DB の物理設計
+- API の request / response 形式
+- current tenant をセッションやトークンでどう表すかといった実装方式
+
+それぞれ次の文書に分けます。
+
+- 設計理由: `docs/adr/`
+- 概念の責務分担: `docs/design-overview.md`
+- ER 図本体: `docs/er/`
 
 ## このアプリで扱う題材
 
-OrgFlow は、B2B ワークフロー SaaS 風の申請・承認アプリである。
-
-Phase 1 では、経費申請を主な題材として扱う。  
-ただし、単なる金額入力フォームではなく、次の論点を含む業務アプリとして扱う。
+OrgFlow は、B2B ワークフロー SaaS 風の申請・承認アプリです。  
+Phase 1 では経費申請を主な題材として扱います。  
+ただし、単なる金額入力フォームではなく、次の論点を含む業務アプリとして扱います。
 
 - tenant ごとのデータ分離
 - tenant 内部の部門・チーム差分
@@ -32,135 +39,83 @@ Phase 1 では、経費申請を主な題材として扱う。
 - 承認フロー
 - 監査ログ
 
----
-
-## このアプリで使う用語
+## 最低限使う用語
 
 ### tenant
 
-tenant は、契約主体かつデータ分離の最上位単位である。  
-別 tenant のデータは、明示的に tenant を切り替えない限り参照できない。
+tenant は、契約主体かつデータ分離の最上位単位です。  
+別 tenant のデータは、current tenant を切り替えない限り参照対象になりません。
 
-例:
+### internal_organization
 
-- 株式会社ABC
-- サッカークラブ
-
-### internal organization
-
-internal organization は、tenant の内部にある部門・課・チームの単位である。  
-同一 tenant 内では、権限があれば複数の internal organization を横断して request や audit_log を参照できる。
-
-例:
-
-- 人事部
-- 経理部
-- 開発1課
-
-### user
-
-user は、システムを利用する人そのものを表す。  
-user は複数 tenant に所属できる。  
-また、同一 tenant 内で複数の internal organization に所属できる。
-
-### internal_organization_membership
-
-internal_organization_membership は、user が internal organization に所属していることを表す。  
-このアプリでは、role は user に直接付けず、internal_organization_membership に対して付与する。
-
-### role
-
-role は、操作権限を表す。  
-role は「何の操作ができるか」を表し、承認ルート決定条件は持たない。
-
-例:
-
-- Viewer
-- Approver
-- Admin
-
-### approval_policy
-
-approval_policy は、「どの条件の request にどの承認ルートを適用するか」を決めるルールである。  
-role とは別概念であり、操作権限の定義には使わない。
+internal_organization は、tenant 内部の部門・課・チームです。  
+request の帰属先、approval_policy の設定単位、業務ロールの適用単位として扱います。
 
 ### request
 
-request は、ある時点の申請内容を持つ 1 件の申請版である。  
-request は「申請全体」ではなく、「系列のうちの 1 版」を表す。  
-差し戻し後の再申請では、既存 request を更新せず、新しい request を作る。
+request は、ある時点の申請内容を表す 1 件の申請版です。  
+「申請という出来事全体」ではなく、版を持つ申請データとして扱います。
 
 ### approval
 
-approval は、request に対して行われた 1 回の判断履歴である。  
-approval は現在状態そのものではない。  
-現在の進行状況は request 側で管理する。
+approval は、request に対して行われた判断履歴です。  
+現在状態そのものではなく、承認、差し戻し、却下などの判断を記録します。
+
+### approval_policy
+
+approval_policy は、どの条件の request にどの approval_route を適用するかを決めるルールです。
 
 ### applied_approval_route
 
-applied_approval_route は、request 作成時に approval_policy を評価して確定した承認ルートの保存結果である。  
-approval_policy や承認者マスタが後で変わっても、既存 request に適用された承認ルートは変えない。
+applied_approval_route は、request 作成時に確定した承認ルートの保存結果です。
 
 ### audit_log
 
-audit_log は、誰が・どの tenant / internal organization で・いつ・何をしたかを記録する独立した証跡である。  
-approval の代わりではなく、ログイン、設定変更、承認ルート変更なども含めて記録する。
+audit_log は、誰が・いつ・何をしたかを残す監査記録です。  
+approval の代わりではなく、横断的な証跡として扱います。
 
----
+## tenant / internal_organization の境界ルール
 
-## 業務上の境界
+tenant はデータ分離の最上位境界です。  
+tenant をまたいだ一覧取得、承認、監査ログ閲覧、設定変更は行わない前提とします。  
+ある操作は、常に current tenant を前提に評価します。
 
-### tenant 境界
+internal_organization は tenant 内部の業務単位です。  
+request は特定の internal_organization に帰属します。  
+approval_policy も internal_organization 単位で定義します。
 
-tenant はデータ分離の境界である。  
-別 tenant の request、approval、audit_log、設定は、tenant を切り替えない限り参照できない。
+同一 tenant 内では、権限があれば複数 internal_organization を横断して閲覧・操作できる場合があります。  
+ただし、別 tenant への横断は認めません。
 
-### internal organization 境界
+## 権限ルール
 
-internal organization は、同一 tenant 内での業務上の所属単位である。  
-request の帰属先、承認権限、承認ルート設定の適用範囲は internal organization を基準に扱う。
+権限は tenant スコープと internal_organization スコープに分けます。
 
-### 表示の考え方
+tenant スコープ権限は、tenant 全体に対する管理系操作を表します。  
+たとえば tenant 全体の設定変更、tenant 横断的な管理操作、広い監査ログ閲覧などが対象です。
 
-- 承認一覧は、現在 tenant の中で、自分が承認権限を持つ internal organization の request を横断表示してよい
-- 監査ログ閲覧は、現在 tenant の中で、閲覧権限がある internal organization を横断検索してよい
-- ただし、別 tenant のデータは tenant 切り替えなしには見えない
+internal_organization スコープ権限は、部門単位の業務操作を表します。  
+たとえば request 作成、承認、部門単位の承認ルール設定などが対象です。
 
----
+role は user に直接付与せず、所属関係に対して付与します。  
+これは、同じ user でも所属先ごとに権限差分を持てるようにするためです。
 
-## 利用者と権限
+役職は認可の根拠に使いません。  
+部長や課長といった役職名は、承認権限や操作権限そのものとは別に扱います。
 
-### 利用者の前提
+## request 作成ルール
 
-- user は複数 tenant に所属できる
-- user は同一 tenant 内で複数の internal organization に所属できる
-- user の操作権限は、所属している internal_organization_membership ごとに変わりうる
+request は、申請時点の `applicant_user_id` と `internal_organization_id` を直接持ちます。  
+これは、申請時点で誰がどの internal_organization に対して申請したか、という不変の事実を保持するためです。
 
-### role の前提
+ただし、どの internal_organization に対して request を作成できるかは自由ではありません。  
+request 作成対象として選べるのは、current tenant 内で、その user が internal_organization_membership を持ち、かつ request 作成を許可する業務ロールが付与されている internal_organization に限ります。
 
-- role は user に直接付与しない
-- role は internal_organization_membership に対して付与する
-- 同一 user でも、所属先の internal organization ごとに異なる role を持てる
-- role は操作権限のみを表し、承認ルート決定条件は持たない
+つまり、request 自体は申請時点の帰属を直接保持し、申請可能条件の判定は membership と role を通して行います。
 
----
+## request の状態遷移ルール
 
-## request に関する業務ルール
-
-### request の意味
-
-- request は、ある時点の申請内容を持つ 1 件の申請版である
-- request は申請系列全体ではない
-- 同一申請の系列は別識別子で表し、各版は request として独立して持つ
-
-### request の帰属
-
-- request は申請時点の applicant_user と internal organization の帰属を持つ
-- request は現在の internal_organization_membership への参照ではなく、申請時点の不変の事実を保持する
-
-### request の状態
-
-Phase 1 の request_status は次の 6 つとする。
+Phase 1 で扱う request の状態は次の 6 つです。
 
 - `draft`
 - `in_progress`
@@ -169,9 +124,7 @@ Phase 1 の request_status は次の 6 つとする。
 - `rejected`
 - `cancelled`
 
-### request の状態遷移
-
-Phase 1 では、最低限次の遷移を認める。
+最低限認める遷移は次のとおりです。
 
 - `draft` → `in_progress`
 - `draft` → `cancelled`
@@ -180,141 +133,78 @@ Phase 1 では、最低限次の遷移を認める。
 - `in_progress` → `rejected`
 - `in_progress` → `cancelled`
 
-差し戻し後の再申請は、`returned` を `in_progress` に戻すのではなく、新しい request を作ることで表現する。  
-そのため、旧版 request は `returned` のまま残る。
+`draft` は下書き状態です。  
+この段階では暫定入力を許容します。  
+たとえば `amount = 0` のような未完成データを一時的に持つことを認めます。
 
-### request 作成時の対象 internal organization
+`in_progress` は申請済みで承認フロー中の状態です。  
+`draft` から `in_progress` へ遷移する時点では、申請として必要な入力が揃っている必要があります。
 
-- request 作成は current tenant 内で行う
-- 申請者は、current tenant 内の任意の internal organization を自由に選べるわけではない
-- 選択できるのは、**その user が所属している internal organization のうち、request 作成を許可する membership_role が付与されているもの** に限る
-- したがって、「申請対象 internal organization を選ぶ」とは、current tenant 内で権限のある所属先から選ぶ、という意味である
+`approved`、`returned`、`rejected`、`cancelled` は終端状態です。  
+終端状態に入った request は、その版としては完了したものとして扱います。
 
-### request の帰属と現在所属の違い
+## 差し戻し後の再申請ルール
 
-- request は申請時点の applicant_user と internal organization 帰属を直接持つ
-- これは過去 request の意味を不変に保つためであり、現在の所属関係そのものを参照し続けるためではない
-- 一方で、request 作成を許可するかどうかの判定には、current tenant / internal_organization_membership / membership_role を使う
+差し戻し後の再申請では、既存 request を更新して再利用しません。  
+新しい request を作成します。
 
-### 金額に関する補足ルール
+そのため、差し戻し前の request は `returned` のまま残ります。  
+再申請後の request は別版として扱います。  
+これにより、差し戻し前後の内容差分、判断履歴、監査記録を後から説明しやすくします。
 
-- `draft` では `amount = 0` を許容する
-- `draft` から `in_progress` へ遷移する時点では、0 円申請は不正として扱う
+## 承認フローのルール
 
----
+approval は request に対する判断履歴です。  
+request の現在状態そのものを持つ概念ではありません。
 
-## approval に関する業務ルール
+承認ルートは request 作成時に確定します。  
+approval_policy を評価して、その結果を applied_approval_route として保存します。  
+その後に approval_policy や approval_route が変更されても、既存 request の承認ルートは変えません。
 
-### approval の意味
+同一承認段に複数承認者がいる場合、Phase 1 では **誰か 1 人が承認すればその承認段は完了する** ルールを採ります。  
+全員承認が必要なケースは、Phase 1 では直接表現しません。
 
-- approval は request に対する 1 回の判断履歴である
-- approval は request の現在状態そのものではない
+承認者は Phase 1 では user 直参照で扱います。  
+動的な役職解決や代理承認は Phase 1 の対象外とします。
 
-### 承認段に関するルール
+## audit_log のルール
 
-- request は現在どの承認段にいるかを別途保持する
-- approval は「どの承認段に対する判断か」を持つ
+audit_log は、request や approval の付属情報ではなく、独立した監査記録として扱います。
 
-### 同一承認段に複数承認者がいる場合のルール
+最低限、次のような重要操作を監査対象に含めます。
 
-Phase 1 では、同一承認段に複数承認者がいる場合、誰か 1 人が承認した時点でその段は完了する。  
-全員承認が必要な場合は、承認段を分けて順番に承認させる前提とする。
-
----
-
-## approval_policy / approval_route / applied_approval_route に関する業務ルール
-
-### approval_policy の意味
-
-approval_policy は、「どの条件の request にどの承認ルートを適用するか」を決めるルールである。
-
-### approval_route の意味
-
-approval_route は、共通の承認ルート定義である。  
-複数の approval_policy が同じ approval_route を参照してよい。
-
-### applied_approval_route の意味
-
-applied_approval_route は、request 作成時に approval_policy を評価して確定した承認ルートの保存結果である。  
-既存 request の承認ルートは、後から approval_policy が変更されても変わらない。
-
-### 保存の粒度
-
-- 1 request に対して 1 applied_approval_route を持つ
-- applied_approval_route は、ルート全体、承認段、承認者の3層で持つ
-
----
-
-## audit_log に関する業務ルール
-
-### audit_log の意味
-
-audit_log は、操作時点の不変な証跡である。  
-対象レコードが後から削除・変更されても、監査記録の意味を失わないことを優先する。
-
-### 記録対象
-
-Phase 1 では、少なくとも次を監査対象に含める。
-
-- ログイン
-- request 作成
-- request 提出
+- request の作成
+- request の更新
+- request の申請
 - 承認
 - 差し戻し
 - 却下
-- 承認ルート設定変更
-- 権限変更
+- 取消
+- ログイン
+- ログアウト
 
-### 保持方針
+audit_log は、操作対象を横断的に扱います。  
+そのため、特定テーブルへの単純な子関係としては扱いません。
 
-- 操作対象は target_type と target_id で保持する
-- 操作主体は ID に加えて表示用スナップショットも保持する
-- audit_log は approval の代用ではない
+監査の目的は、後から「誰が・どの tenant / internal_organization 文脈で・何に対して・何をしたか」を追えるようにすることです。  
+したがって、単に request や approval の履歴があれば十分、とは考えません。
 
----
+## この文書の読み方
 
-## current tenant の扱い
+この文書は、OrgFlow で何を許可し、何を固定ルールとして扱うかをまとめたものです。  
+概念そのものの意味や責務は `docs/design-overview.md` を参照してください。  
+採用理由や比較案は `docs/adr/` を参照してください。  
+DB 制約や型は `docs/er/` を参照してください。
 
-- 別 tenant のデータは current tenant を切り替えない限り参照できない
-- 承認一覧は current tenant 内で、自分が承認権限を持つ複数 internal organization の request を横断表示できる
-- 監査ログ閲覧は current tenant 内で、閲覧権限がある複数 internal organization を横断検索できる
-- 申請作成は current tenant 内で、申請対象 internal organization を選ぶ
+## 未確定の論点
 
-## approval_policy の金額条件
+Phase 1 では、次の論点はまだ固定しません。
 
-Phase 1 では `approval_policy.min_amount = 0` を「金額条件なし」とみなす。
+- internal_organization の階層構造をどこまで持つか
+- current tenant を UI / セッション / トークンのどこで表現するか
+- 監査ログにどの識別子をどこまで物理的に持つか
+- approval_policy を tenant 共通にするか internal_organization ごとに持つかの細部
+- 代理申請、代理承認を扱うか
+- 全員承認や主担当 / 副担当を扱うか
 
-- `min_amount > 0` の場合: 指定金額以上で適用される
-- `min_amount = 0` の場合: 金額条件なしで適用される
-
-同一 `internal_organization_id` / `request_type` に対して複数候補がマッチする場合は、  
-**`min_amount` が最大の policy を採用する**。
-
-## 承認者の参照方針
-
-Phase 1 では、共通ルート定義側・適用結果側ともに、承認者は `user_id` の直参照で表す。
-
-- `approval_route_step_approvers.user_id`
-- `applied_approval_route_step_approvers.user_id`
-
-ただし、対象 user が current tenant に所属していることは、アプリケーション側でチェックする。
-
-## Phase 1 で意図的に広げないこと
-
-次は、将来の論点として扱い、Phase 1 では主対象にしない。
-
-- 代理申請
-- 代理承認
-- 全員承認の直接表現
-- tenant をまたぐ横断検索
-- 高度な閲覧権限マトリクス
-- request_type 管理UI
-
----
-
-## まだ未確定の論点
-
-- approval_policy の評価順序
-- 閲覧権限の細分化
-- users / tenant / internal organization の削除戦略
-- 監査ログの主体側 FK をどこまで厳密に維持するか
+これらは、論理 ER 図、物理 ER 図、API 設計、実装で必要になった段階で詰めます。

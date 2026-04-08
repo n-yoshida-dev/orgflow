@@ -36,7 +36,8 @@ OrgFlow は、B2B ワークフロー SaaS を題材にした学習用プロジ�
 題材は単純な ToDo ではなく、申請・承認アプリを採用しています。  
 理由は、以下の論点を 1 つの題材で自然に扱いやすいからです。
 
-- 組織単位のデータ
+- tenant をまたぐデータ分離
+- tenant 内の internal organization ごとの差分
 - ロールと認可
 - 承認フロー
 - 状態遷移
@@ -52,40 +53,40 @@ OrgFlow は、B2B ワークフロー SaaS を題材にした学習用プロジ�
 
 ### 設計関連
 
+- [Docs 入口](./docs/index.md)
 - [設計概要](./docs/design-overview.md)
 - [業務ルール](./docs/domain-rules.md)
 
 ### ER 関連
 
-- [ER メモ](./docs/er/00_notes.md)
+- [ER 設計メモ](./docs/er/00_notes.md)
 - [概念 ER 図](./docs/er/01_concept-er.md)
 - [論理 ER 図（DBML）](./docs/er/02_logical-er.dbml)
 - [物理 ER 図（DBML）](./docs/er/03_physical-er.dbml)
 
 ### ADR
 
-- [ADR 一覧](./docs/adr/)
-- [ADR-001: 題材として申請・承認を採用した理由](./docs/adr/ADR-001-なぜ題材をタスク管理ではなく申請・承認にしたか.md)
-- [ADR-002: 監査ログを独立した概念として扱う](./docs/adr/ADR-002-監査ログを独立した概念として扱う.md)
-- [ADR-003: RBAC の最小方針](./docs/adr/ADR-003-RBAC の最小方針.md)
-- [ADR-004: 業務フローの状態遷移をどう表現するか](./docs/adr/ADR-004-業務フローの状態遷移をどう表現するか.md)
+- [ADR 一覧](./docs/adr/index.md)
 
-## 現時点での設計上の考え方
+## 現時点での設計ドキュメントの見方
 
-詳細は ADR と docs に分けていますが、現時点の大きな方針は以下です。
+README には設計詳細を詰め込まず、全体像の入口だけを置いています。  
+設計の詳細は `docs/` と `ADR` に分けて管理しています。
 
-- `request` は、ある時点の申請内容を持つ 1 件の申請版として扱う
-- `approval` は、申請に対して行われた 1 回の判断履歴として扱う
-- `role` は操作権限、`approval_policy` は承認ルート決定ルールとして分ける
-- `audit_log` は他概念の付属情報ではなく、独立した記録として扱う
-- README には全設計を書かず、判断理由は ADR、詳細設計は docs に分ける
+- 概念の責務分担: `./docs/design-overview.md`
+- 固定する業務ルール: `./docs/domain-rules.md`
+- ER 図の補足・概念図・論理図・物理図: `./docs/er/`
+- 設計判断の理由: `./docs/adr/`
+- ドキュメント全体の入口: `./docs/index.md`
 
 ## Phase 1 の到達目標
 
 Phase 1 では、Java / Spring Boot による OrgFlow API v1 を対象に、  
 以下を説明できる状態を目指しています。
 
-- organizations / users / roles / requests / approvals / audit_logs の意味
+- tenant / internal organization / membership の意味
+- tenant スコープ権限と internal organization スコープ権限の違い
+- request / approval / approval_policy / applied_approval_route / audit_log の意味
 - 認証済み API
 - RBAC
 - 申請 → 承認または差し戻し → 監査ログ記録 の一貫した業務フロー
