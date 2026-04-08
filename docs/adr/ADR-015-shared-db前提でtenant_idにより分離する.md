@@ -1,4 +1,4 @@
-ADR-015: shared DB 前提で tenant_id により分離する
+# ADR-015: shared DB 前提で tenant_id により分離する
 
 - Status: Accepted
 - Date: 2026-04-07
