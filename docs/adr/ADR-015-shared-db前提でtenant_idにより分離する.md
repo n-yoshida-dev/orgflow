@@ -49,3 +49,25 @@ tenant 境界は tenant_id により表現し、別 tenant のデータは curre
 - tenant ごとに完全分離が必要な非機能要件が生じた場合
 - Phase 2 以降で、tenant ごとの DB 分離が必要なほど運用要件が重くなった場合
 - shared DB 前提では監査・権限・性能の説明が苦しくなった場合
+
+## 追記: physical ER図で tenant 一致をどこまで DB 制約で表現するか（2026-04-08）
+
+### 決定
+
+Phase 1 の physical ER図では、shared DB 前提を踏まえ、tenant 境界を次のように表現する。
+
+- `request` は `tenant_id` を持つ
+- `request` の申請者は、`tenant_membership` を通して current tenant に属する user であることを表現する
+- `request` の申請先 internal organization は、その `tenant_id` に属する internal organization であることを表現する
+- `applied_approval_route_step` は `request_id` を持ち、`request` / `approval` / `current step` の整合を複合参照で表現する
+
+### 理由
+
+- shared DB では、tenant 境界を「アプリケーション側で気をつける」だけにすると説明責任が弱い
+- tenant 一致と request-step 整合のうち、DB で表現できるものは DB 制約で先に落としておく方が、後続の API / OpenAPI / テストと整合しやすい
+- 一方で、申請可能な internal organization の最終判定のような権限制御は、current tenant と membership_role を使う認可ロジック側で担保する方が自然である
+
+### 受け入れる制約
+
+- tenant 一致のすべてを DB だけで完結させるわけではない
+- 業務操作の許可条件は、DB 制約ではなく API 側の認可判定に残る部分がある
