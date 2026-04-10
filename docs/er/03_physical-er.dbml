@@ -90,6 +90,7 @@ Table requests {
   tenant_id uuid [not null, ref: > tenants.id]
   request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
   version_no int [not null, check: `version_no >= 1`, note: '採番はアプリ側で行う']
+  user_id uuid [not null, ref: > users.id, note: '自身の request の一覧表示の判定で使用']
   status request_status [not null]
   current_applied_approval_route_step_id uuid [null]
   applicant_user_id uuid [not null]
