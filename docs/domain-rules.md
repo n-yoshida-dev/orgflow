@@ -87,6 +87,18 @@ approval_policy も internal_organization 単位で定義します。
 同一 tenant 内では、権限があれば複数 internal_organization を横断して閲覧・操作できる場合があります。  
 ただし、別 tenant への横断は認めません。
 
+## 権限スコープと管理系操作の責務分離
+
+OrgFlow では、管理系操作を tenant スコープと internal organization スコープに分ける。
+
+tenant スコープでは、tenant 全体の利用者・所属・tenant role を扱う。  
+たとえば、user 管理、tenant membership role 管理、internal organization membership への user 追加 / 削除は tenant 管理者が担う。
+
+一方、internal organization スコープでは、部門・課・チーム単位の業務運用を扱う。  
+たとえば、approval policy、approval route、membership role の管理は internal organization 管理者が担う。
+
+この分離により、tenant 全体管理と部門単位の業務権限管理を混同しないようにする。
+
 ## 権限ルール
 
 権限は tenant スコープと internal_organization スコープに分けます。
