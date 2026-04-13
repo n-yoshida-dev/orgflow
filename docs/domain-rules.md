@@ -5,7 +5,7 @@
 
 ## internal_organization_role 新名称の命名対応表
 
-role と membership_role という用語は、業務ルールの説明において混乱を招きやすいと考え、internal_organization_role と internal_organization_membership_role に名称変更することにする。
+internal_organization_role と internal_organization_membership_role という用語は、業務ルールの説明において混乱を招きやすいと考え、internal_organization_role と internal_organization_membership_role に名称変更することにする。
 以下に、このプロジェクト内での新名称と旧名称の対応表を示す。
 
 | 旧名                   | 新正式名称                            | 表示名               |
@@ -103,11 +103,11 @@ approval_policy も internal_organization 単位で定義します。
 
 OrgFlow では、管理系操作を tenant スコープと internal organization スコープに分ける。
 
-tenant スコープでは、tenant 全体の利用者・所属・tenant role を扱う。  
-たとえば、user 管理、tenant membership role 管理、internal organization membership への user 追加 / 削除は tenant 管理者が担う。
+tenant スコープでは、tenant 全体の利用者・所属・tenant internal_organization_role を扱う。  
+たとえば、user 管理、tenant membership internal_organization_role 管理、internal organization membership への user 追加 / 削除は tenant 管理者が担う。
 
 一方、internal organization スコープでは、部門・課・チーム単位の業務運用を扱う。  
-たとえば、approval policy、approval route、membership role の管理は internal organization 管理者が担う。
+たとえば、approval policy、approval route、membership internal_organization_role の管理は internal organization 管理者が担う。
 
 この分離により、tenant 全体管理と部門単位の業務権限管理を混同しないようにする。
 
@@ -121,7 +121,7 @@ tenant スコープ権限は、tenant 全体に対する管理系操作を表し
 internal_organization スコープ権限は、部門単位の業務操作を表します。  
 たとえば request 作成、承認、部門単位の承認ルール設定などが対象です。
 
-role は user に直接付与せず、所属関係に対して付与します。  
+internal_organization_role は user に直接付与せず、所属関係に対して付与します。  
 これは、同じ user でも所属先ごとに権限差分を持てるようにするためです。
 
 役職は認可の根拠に使いません。  
@@ -135,7 +135,7 @@ request は、申請時点の `applicant_user_id` と `internal_organization_id`
 ただし、どの internal_organization に対して request を作成できるかは自由ではありません。  
 request 作成対象として選べるのは、current tenant 内で、その user が internal_organization_membership を持ち、かつ request 作成を許可する業務ロールが付与されている internal_organization に限ります。
 
-つまり、request 自体は申請時点の帰属を直接保持し、申請可能条件の判定は membership と role を通して行います。
+つまり、request 自体は申請時点の帰属を直接保持し、申請可能条件の判定は membership と internal_organization_role を通して行います。
 
 ## request の状態遷移ルール
 

@@ -60,14 +60,14 @@ request の帰属先、approval_policy の設定単位、業務ロールの適�
 `internal_organization_membership` は、ある tenant_membership が、tenant 内のどの internal_organization に所属しているかを表す概念です。  
 部門所属という事実を表し、業務ロール付与の基点になります。
 
-### `role`
+### `internal_organization_role`
 
-`role` は、internal_organization 単位の業務操作権限を表す概念です。  
+`internal_organization_role` は、internal_organization 単位の業務操作権限を表す概念です。  
 request 作成、承認、internal_organization 単位の設定変更など、部門単位で意味を持つ操作権限を表します。
 
-### `membership_role`
+### `internal_organization_membership_role`
 
-`membership_role` は、ある internal_organization_membership にどの role が付与されているかを表す中間概念です。  
+`internal_organization_membership_role` は、ある internal_organization_membership にどの internal_organization_role が付与されているかを表す中間概念です。  
 業務ロールを user へ直接付与するのではなく、所属関係に対して付与するために置きます。
 
 ### `user`
@@ -128,7 +128,7 @@ user は tenant に対して所属し、その所属関係を tenant_membership 
 さらに tenant_membership は internal_organization に所属でき、その関係を internal_organization_membership で表します。
 
 権限は 2 つのスコープに分けます。  
-tenant 全体に対する管理系権限は tenant_role / tenant_membership_role で表し、internal_organization 単位の業務権限は role / membership_role で表します。  
+tenant 全体に対する管理系権限は tenant_role / tenant_membership_role で表し、internal_organization 単位の業務権限は internal_organization_role / internal_organization_membership_role で表します。  
 これにより、tenant 全体管理と部門単位業務権限を混同せずに扱えます。
 
 request は user が作成する申請版であり、internal_organization に帰属します。  

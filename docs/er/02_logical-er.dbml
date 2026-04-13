@@ -54,16 +54,16 @@ Table internal_organization_memberships {
 Ref: internal_organization_memberships.(tenant_membership_id, tenant_id) > tenant_memberships.(id, tenant_id)
 Ref: internal_organization_memberships.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
 
-Table roles {
+Table internal_organization_roles {
   id uuid [pk]
   name varchar(100) [not null, unique]
   Note: "本システムでどのような役割を行えるかを示す権限"
 }
 
-Table membership_roles {
+Table internal_organization_membership_roles {
   id uuid [pk]
   internal_organization_membership_id uuid [not null, ref: > internal_organization_memberships.id]
-  role_id uuid [not null, ref: > roles.id]
+  role_id uuid [not null, ref: > internal_organization_roles.id]
   indexes {
   (internal_organization_membership_id, role_id) [unique]
   }
