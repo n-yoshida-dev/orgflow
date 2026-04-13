@@ -3,6 +3,18 @@
 この文書は、OrgFlow Phase 1 で固定して扱う業務ルールを整理するための文書です。  
 ここで扱うのは、画面や API の細かな仕様ではなく、用語、境界、状態遷移、権限、承認フロー、監査の前提です。
 
+## internal_organization_role 新名称の命名対応表
+
+role と membership_role という用語は、業務ルールの説明において混乱を招きやすいと考え、internal_organization_role と internal_organization_membership_role に名称変更することにする。
+以下に、このプロジェクト内での新名称と旧名称の対応表を示す。
+
+| 旧名                   | 新正式名称                            | 表示名               |
+| ---------------------- | ------------------------------------- | -------------------- |
+| tenant_role            | tenant_role                           | tenantロール         |
+| tenant_membership_role | tenant_membership_role                | tenantロール付与結果 |
+| role                   | internal_organization_role            | 業務ロール           |
+| membership_role        | internal_organization_membership_role | 業務ロール付与結果   |
+
 ## この文書で固定すること
 
 - tenant / internal_organization の境界ルール
