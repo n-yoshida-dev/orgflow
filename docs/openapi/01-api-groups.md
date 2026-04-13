@@ -142,12 +142,12 @@ approval 群において、主リソースは `request` である。
 
 ---
 
-## 6. tenant 管理群
+## 6. tenant管理群
 
 ### 6-1. この群の責務
 
-この群は、[何を管理/実行する群か] を扱う。
-[何と何は含めるが、何は含めない] まで短く書く。
+この群は、current tenant 配下の user 管理、tenant membership 管理、および tenant_membership への tenant_role 付与 / 剥奪 / 一覧取得を扱う。  
+internal_organization 単位の業務権限管理は internal_organization 管理群で扱う。
 
 ### 6-2. 誰が呼ぶ群か
 
@@ -155,31 +155,30 @@ approval 群において、主リソースは `request` である。
 
 ### 6-3. 主リソースを何として扱うか
 
-tenant 管理群における主リソースは、tenant, user, tenant_membership, internal_organization などの、tenant 管理に関するリソースである。
-tenant_roleに関しては固定情報であるため主リソースとは扱わず、internal_organization_role 付与先の tenant_membership を主リソースとして扱う。
-また、internal_organization作成などの業務操作も internal_organization を主リソースとして扱うが、この業務操作は internal_organization 管理者向けの操作であるため、tenant 管理群としては扱わない。
+user 管理については、主リソースは `user` である。  
+tenant membership に対する tenant_role 付与 / 剥奪 / 一覧取得については、主リソースは `tenant_membership` である。  
+tenant_role は固定語彙であるため、主リソースとは扱わない。
 
 ### 6-4. この群に含める業務操作
 
-| 業務操作                          | 主リソース            | メモ                                                   |
-| --------------------------------- | --------------------- | ------------------------------------------------------ |
-| tenant削除                        | tenant                | -                                                      |
-| user作成                          | user                  | -                                                      |
-| user更新                          | user                  | -                                                      |
-| user削除                          | user                  | -                                                      |
-| user一覧取得                      | user                  | -                                                      |
-| tenant internal_organization_role 付与                  | tenant_membership     | internal_organization_role 付与先の tenant_membership を主リソースとして扱う |
-| tenant internal_organization_role 剥奪                  | tenant_membership     | internal_organization_role 剥奪先の tenant_membership を主リソースとして扱う |
-| tenant membership 一覧取得        | tenant_membership     | -                                                      |
-| internal_organizaitonへuser追加   | internal_organization | -                                                      |
-| internal_organizaitonからuser削除 | internal_organization | -                                                      |
+| 業務操作                          | 主リソース            | メモ                                                          |
+| --------------------------------- | --------------------- | ------------------------------------------------------------- |
+| user作成                          | user                  | -                                                             |
+| user更新                          | user                  | -                                                             |
+| user削除                          | user                  | -                                                             |
+| user一覧取得                      | user                  | -                                                             |
+| tenantロール付与                  | tenant_membership     | tenant_role 付与先の tenant_membership を主リソースとして扱う |
+| tenantロール剥奪                  | tenant_membership     | tenant_role 剥奪先の tenant_membership を主リソースとして扱う |
+| tenantロール付与結果一覧取得      | tenant_membership     | -                                                             |
+| internal_organizationへuser追加   | internal_organization | -                                                             |
+| internal_organizationからuser削除 | internal_organization | -                                                             |
 
 ### 6-5. 次の文書で詰める論点
 
 - [collection / item / subresource / action のどれで置くか]
 - [一覧取得をどの単位で置くか]
 - [path にするときに揺れそうな点]
-- tenant internal_organization_role 付与と剥奪をどの単位で置くか（item で置くなら、/grant_role と /revoke_role のような path にするのが自然かなど）
+- tenantロール付与と剥奪をどの単位で置くか（item で置くなら、/grant_role と /revoke_role のような path にするのが自然かなど）
 
 ---
 
@@ -187,8 +186,8 @@ tenant_roleに関しては固定情報であるため主リソースとは扱わ
 
 ### 7-1. この群の責務
 
-この群は、internal_organization を管理する操作および、internal_organization_membership への internal_organization_role 付与/剥奪操作を扱う。
-user 管理は tenant管理者向けの操作であるため、internal_organization 管理群には含めない。
+この群は、internal_organization を管理する操作、および internal_organization_membership への internal_organization_role 付与 / 剥奪 / 一覧取得を扱う。  
+user 管理や tenant 全体の所属管理は tenant 管理群で扱う。
 
 ### 7-2. 誰が呼ぶ群か
 
@@ -196,30 +195,33 @@ user 管理は tenant管理者向けの操作であるため、internal_organiza
 
 ### 7-3. 主リソースを何として扱うか
 
-internal_organization を管理する操作については、主リソースは internal_organization である。
-internal_organization_membership への internal_organization_role 付与/剥奪操作については、主リソースは internal_organization_membership_role である。
+internal_organization を管理する操作については、主リソースは `internal_organization` である。  
+internal_organization_membership への role 付与 / 剥奪については、主リソースは `internal_organization_membership_role` である。  
+また、一覧取得については、対象を `internal_organization` とみなし、internal_organization 配下の role 付与結果一覧として表現する。
 
 #### 補足：internal_organization_role付与/剥奪操作 の主リソースについて
 
-internal_organization_role とはアプリ側で固定されている `internal organization` への所属関係に対して付与される業務操作権限であり、`membership internal_organization_role` とは、`internal organization membership` に対して、その internal_organization_role が付与されている事実である。よって、 internal_organization_role付与という業務操作において、主リソースは `internal_organization_membership_role` となる。
+`internal_organization_role` は、internal_organization スコープの業務操作権限を表す固定語彙である。  
+`internal_organization_membership_role` は、ある `internal_organization_membership` に対して、どの `internal_organization_role` が付与されているかを表す付与結果である。  
+したがって、role 付与 / 剥奪 / 一覧取得という業務操作において、主リソースは `internal_organization_membership_role` として扱う。
 
 ### 7-4. この群に含める業務操作
 
-| 業務操作                     | 主リソース            | メモ |
-| ---------------------------- | --------------------- | ---- |
-| internal organization作成    | internal_organization | -    |
-| internal organization更新    | internal_organization | -    |
-| internal organization削除    | internal_organization | -    |
-| membership internal_organization_role 付与         | internal_organization_membership_role       | -    |
-| membership internal_organization_role 剥奪         | internal_organization_membership_role       | -    |
-| membership internal_organization_role 付与一覧取得 | internal_organization_membership_role       | -    |
+| 業務操作                   | 主リソース                            | メモ                                                       |
+| -------------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| internal organization作成  | internal_organization                 | -                                                          |
+| internal organization更新  | internal_organization                 | -                                                          |
+| internal organization削除  | internal_organization                 | -                                                          |
+| 業務ロール付与             | internal_organization_membership_role | internal_organization_role の付与結果を扱う                |
+| 業務ロール剥奪             | internal_organization_membership_role | internal_organization_role の付与結果を扱う                |
+| 業務ロール付与結果一覧取得 | internal_organization_membership_role | internal_organization 配下の一覧として表現する可能性がある |
 
 ### 7-5. 次の文書で詰める論点
 
 - [collection / item / subresource / action のどれで置くか]
 - [一覧取得をどの単位で置くか]
 - [path にするときに揺れそうな点]
-- membership internal_organization_role 付与と剥奪をどの単位で置くか（item で置くなら、/grant_role と /revoke_role のような path にするのが自然かなど）
+- 業務ロール付与と剥奪をどの単位で置くか（item で置くなら、/grant_role と /revoke_role のような path にするのが自然かなど）
 
 ---
 
