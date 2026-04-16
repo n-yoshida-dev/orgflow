@@ -207,14 +207,14 @@ internal_organization_membership への role 付与 / 剥奪については、�
 
 ### 7-4. この群に含める業務操作
 
-| 業務操作                   | 主リソース                            | メモ                                                       |
-| -------------------------- | ------------------------------------- | ---------------------------------------------------------- |
-| internal organization作成  | internal_organization                 | -                                                          |
-| internal organization更新  | internal_organization                 | -                                                          |
-| internal organization削除  | internal_organization                 | -                                                          |
-| 業務ロール付与             | internal_organization_membership_role | internal_organization_role の付与結果を扱う                |
-| 業務ロール剥奪             | internal_organization_membership_role | internal_organization_role の付与結果を扱う                |
-| 業務ロール付与結果一覧取得 | internal_organization_membership_role | internal_organization 配下の一覧として表現する可能性がある |
+| 業務操作                   | 主リソース                            | メモ                                           |
+| -------------------------- | ------------------------------------- | ---------------------------------------------- |
+| internal organization作成  | internal_organization                 | -                                              |
+| internal organization更新  | internal_organization                 | -                                              |
+| internal organization削除  | internal_organization                 | -                                              |
+| 業務ロール付与             | internal_organization_membership_role | internal_organization_role の付与結果を扱う    |
+| 業務ロール剥奪             | internal_organization_membership_role | internal_organization_role の付与結果を扱う    |
+| 業務ロール付与結果一覧取得 | internal_organization_membership_role | internal_organization 配下の一覧として表現する |
 
 ### 7-5. 次の文書で詰める論点
 
