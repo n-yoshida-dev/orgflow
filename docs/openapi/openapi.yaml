@@ -1,0 +1,1004 @@
+openapi: 3.0.4
+info:
+  title: OrgFlow API
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8080
+
+security:
+  - bearerAuth: []
+
+paths:
+  /login:
+    post:
+      operationId: login
+      security: []
+      tags:
+        - Auth
+      summary: ログイン
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /tenants/{tenantId}/select:
+    post:
+      operationId: selectTenant
+      tags:
+        - Auth
+      summary: テナント切り替え
+      parameters:
+        - name: tenantId
+          description: テナントを指定するID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: テナント切り替え成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantSelectResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /requests:
+    post:
+      operationId: createRequest
+      tags:
+        - Requests
+      summary: request作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRequestInput'
+      responses:
+        '201':
+          description: request投稿成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    get:
+      operationId: listRequests
+      tags:
+        - Requests
+      summary: request を一覧表示する
+      parameters:
+        - name: scope
+          description: request 一覧の絞り込み条件。省略時は全件、pending-approval 指定時は承認対象のみ返す
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending-approval
+      responses:
+        '200':
+          description: request 一覧取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRequestsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /requests/{requestId}:
+    parameters:
+      - name: requestId
+        description: リクエストを指定するID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getRequest
+      tags:
+        - Requests
+      summary: request を1件取り出す
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    patch:
+      operationId: updateRequestDraft
+      tags:
+        - Requests
+      summary: リクエストの下書きを修正する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRequestRequest'
+      responses:
+        '200':
+          description: 下書き修正成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    delete:
+      operationId: deleteRequestDraft
+      tags:
+        - Requests
+      summary: 下書きのリクエストを削除する
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /requests/{requestId}/submit:
+    post:
+      operationId: submitRequest
+      tags:
+        - Requests
+      summary: 下書きのリクエストを提出する
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitRequestRequest'
+      responses:
+        '201':
+          description: 下書き提出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /requests/{requestId}/cancel:
+    post:
+      operationId: cancelRequest
+      tags:
+        - Requests
+      summary: request を取り消す
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 取消成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /requests/{requestId}/approve:
+    post:
+      operationId: approveRequest
+      tags:
+        - Approvals
+      summary: request を承認する
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 承認成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /requests/{requestId}/return:
+    post:
+      operationId: returnRequest
+      tags:
+        - Approvals
+      summary: request を差戻しする
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 差戻し成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /requests/{requestId}/reject:
+    post:
+      operationId: rejectRequest
+      tags:
+        - Approvals
+      summary: request を却下する
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 却下成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /audit-logs:
+    get:
+      operationId: listAuditLog
+      tags:
+        - AuditLogs
+      summary: audit-log を一覧取得する
+      responses:
+        '200':
+          description: 一覧取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuditLogResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /audit-logs/{auditLogId}:
+    get:
+      operationId: getAuditLog
+      tags:
+        - AuditLogs
+      summary: audit-log を1件取得する
+      parameters:
+        - name: auditLogId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 1件取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /tenants/{tenantId}:
+    delete:
+      operationId: deleteTenant
+      tags:
+        - Tenants
+      summary: tenant を削除する
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: tenant削除成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /users:
+    post:
+      operationId: createUser
+      tags:
+        - Users
+      summary: user を作成する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: user 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    get:
+      operationId: listUsers
+      tags:
+        - Users
+      summary: user 一覧を取得する
+      responses:
+        '200':
+          description: user一覧取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getUser
+      tags:
+        - Users
+      summary: user 情報を1件取得する
+      responses:
+        '200':
+          description: 1件取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      operationId: updateUser
+      tags:
+        - Users
+      summary: user 情報を更新する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    delete:
+      operationId: deleteUser
+      tags:
+        - Users
+      summary: user を削除する
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /tenant-memberships/{tenantMembershipId}/roles:
+    parameters:
+      - name: tenantMembershipId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: listTenantMembershipRoles
+      tags:
+        - TenantMembershipRoles
+      summary: tenantMembershipRoleを全件取得する
+      responses:
+        '200':
+          description: 全件取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTenantMembershipRolesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      operationId: createTenantMembershipRole
+      tags:
+        - TenantMembershipRoles
+      summary: tenantMembershipRoleを作成する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRole'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantMembershipRole'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+
+  /tenant-memberships/{tenantMembershipId}/roles/{tenantRoleId}:
+    delete:
+      operationId: deleteTenantMembershipRole
+      tags:
+        - TenantMembershipRoles
+      summary: tenantMembershipRoleを1件削除する
+      parameters:
+        - name: tenantMembershipId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tenantRoleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /internal-organization-memberships/{internalOrganizationMembershipId}/roles:
+    parameters:
+      - name: internalOrganizationMembershipId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: listInternalOrganizationMembershipRoles
+      tags:
+        - InternalOrganizationMembershipRoles
+      summary: internalOrganizationMembershipRole を全件取得する
+      responses:
+        '200':
+          description: 全件取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInternalOrganizationMembershipRolesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      operationId: createInternalOrganizationMembershipRole
+      tags:
+        - InternalOrganizationMembershipRoles
+      summary: internalOrganizationMembershipRole を作成する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInternalOrganizationMembershipRole'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalOrganizationMembershipRole'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /internal-organization-memberships/{internalOrganizationMembershipId}/roles/{internalOrganizationRoleId}:
+    delete:
+      operationId: deleteInternalOrganizationMembershipRole
+      tags:
+        - InternalOrganizationMembershipRoles
+      summary: internalOrganizationMembershipRole を1件削除する
+      parameters:
+        - name: internalOrganizationMembershipId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: internalOrganizationRoleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ---- Request Bodies ----
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    CreateRequestInput:
+      type: object
+      required:
+        - internal_organization_id
+        - request_type
+        - amount
+      properties:
+        internal_organization_id:
+          type: string
+          format: uuid
+        request_type:
+          type: string
+          enum: [transportation_expenses, travel_expenses, equipment_purchase_expenses]
+        amount:
+          type: integer
+          minimum: 0
+
+    PatchRequestRequest:
+      type: object
+      properties:
+        title:
+          type: string
+
+    SubmitRequestRequest:
+      type: object
+      properties:
+        title:
+          type: string
+
+    CreateUserRequest:
+      type: object
+      required:
+        - display_name
+        - login_id
+        - password
+        - mail_address
+      properties:
+        display_name:
+          type: string
+        login_id:
+          type: string
+        password:
+          type: string
+        mail_address:
+          type: string
+          format: email
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+        login_id:
+          type: string
+        password:
+          type: string
+        mail_address:
+          type: string
+          format: email
+
+    CreateTenantRole:
+      type: object
+      required:
+        - tenantRole
+      properties:
+        tenantRole:
+          type: string
+
+    CreateInternalOrganizationMembershipRole:
+      type: object
+      required:
+        - internal_organization_role
+      properties:
+        internal_organization_role:
+          type: string
+
+    # ---- Entities ----
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーID
+        display_name:
+          type: string
+          description: 表示名
+        login_id:
+          type: string
+          description: ログインID
+        mail_address:
+          type: string
+          format: email
+          description: メールアドレス
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: リクエストID
+        tenant_id:
+          type: string
+          format: uuid
+          description: テナントID
+        request_series_id:
+          type: string
+          format: uuid
+          description: リクエストシリーズID（同一申請の改版をまとめる単位）
+        version_no:
+          type: integer
+          description: バージョン番号
+        user_id:
+          type: string
+          format: uuid
+          description: 作成ユーザーID
+        status:
+          type: string
+          enum: [draft, in_progress, approved, returned, rejected, cancelled]
+          description: リクエストの状態
+        current_applied_approval_route_step_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 現在の承認ルートステップID
+        applicant_user_id:
+          type: string
+          format: uuid
+          description: 申請者ユーザーID
+        internal_organization_id:
+          type: string
+          format: uuid
+          description: 申請元の内部組織ID
+        request_type:
+          type: string
+          enum: [transportation_expenses, travel_expenses, equipment_purchase_expenses]
+          description: 申請種別
+        amount:
+          type: integer
+          minimum: 0
+          description: 申請金額（円）
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 監査ログID
+        actor_tenant_id:
+          type: string
+          format: uuid
+          description: 操作者のテナントID
+        actor_user_id:
+          type: string
+          format: uuid
+          description: 操作者のユーザーID
+        actor_user_display_name:
+          type: string
+          description: 操作者の表示名
+        actor_internal_organization_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 操作者の内部組織ID
+        actor_internal_organization_name:
+          type: string
+          nullable: true
+          description: 操作者の内部組織名
+        actor_user_mail_address:
+          type: string
+          format: email
+          description: 操作者のメールアドレス
+        target_type:
+          type: string
+          description: 操作対象のリソース種別
+        target_id:
+          type: string
+          format: uuid
+          description: 操作対象のID
+        operation_type:
+          type: string
+          enum: [create, update, delete, submit, approve, return, reject, cancel, login, logout]
+          description: 操作種別
+        occurred_at:
+          type: string
+          format: date-time
+          description: 操作発生日時
+
+    TenantMembershipRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: テナントメンバーシップロールID
+        tenant_membership_id:
+          type: string
+          format: uuid
+          description: テナントメンバーシップID
+        tenant_role_id:
+          type: string
+          format: uuid
+          description: テナントロールID
+        role_name:
+          type: string
+          description: ロール名
+
+    InternalOrganizationMembershipRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 内部組織メンバーシップロールID
+        internal_organization_membership_id:
+          type: string
+          format: uuid
+          description: 内部組織メンバーシップID
+        role_id:
+          type: string
+          format: uuid
+          description: ロールID
+        role_name:
+          type: string
+          description: ロール名
+
+    # ---- Response Bodies ----
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: 認証トークン（JWT）
+        currentTenantId:
+          type: string
+          description: 現在選択中のテナントID
+
+    TenantSelectResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: テナント切替後の認証トークン（JWT）
+        currentTenantId:
+          type: string
+          description: 切替後のテナントID
+
+    ListRequestsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+
+    ListUsersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+    ListAuditLogResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+
+    ListTenantMembershipRolesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantMembershipRole'
+
+    ListInternalOrganizationMembershipRolesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternalOrganizationMembershipRole'
+
+  responses:
+    UnauthorizedError:
+      description: 認証に失敗しました
+    ForbiddenError:
+      description: 権限が不足しています
+    ValidationError:
+      description: ログイン情報が不正です
+    NotFoundError:
+      description: 対象が見つかりません
+    ConflictError:
+      description: 現在の状態では処理できません
+    UnprocessableEntityError:
+      description: 入力値が不正です

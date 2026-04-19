@@ -37,15 +37,15 @@
 ### 決定
 
 - `request` は引き続き `applicant_user_id` と `internal_organization_id` を直接持つ
-- ただし、request 作成時に選べる `internal_organization` は、**current tenant 内で、その user が `internal_organization_membership` を持ち、かつ request 作成を許可する `membership_role` が付与されている所属先** に限る
-- したがって、`request` は申請時点の不変な帰属を直接保持する一方、**申請可能条件の判定は current tenant / membership / membership_role を通して行う**
+- ただし、request 作成時に選べる `internal_organization` は、**current tenant 内で、その user が `internal_organization_membership` を持ち、かつ request 作成を許可する `internal_organization_role` が付与されている所属先** に限る
+- したがって、`request` は申請時点の不変な帰属を直接保持する一方、**申請可能条件の判定は current tenant / internal_organization_membership / internal_organization_membership_role を通して行う**
 - physical ER では、`request.tenant_id` を持たせ、申請者と申請先 internal organization が同一 tenant に属することを DB 制約で補助的に保証する
 
 ### 理由
 
 - `request` が保持すべきなのは、申請時点の不変な事実であり、現在の所属関係そのものではない
 - 一方で、誰でも current tenant 内の任意の internal organization に申請できるとすると、業務権限の境界が曖昧になる
-- `membership_role` を通して申請可能条件を判定すれば、同じ user でも internal organization ごとに request 作成可否を変えられる
+- `internal_organization_membership_role` を通して申請可能条件を判定すれば、同じ user でも internal organization ごとに request 作成可否を変えられる
 - 兼務している internal organization に対してのみ申請できる、という業務ルールも自然に表現できる
 
 ### 受け入れる制約
