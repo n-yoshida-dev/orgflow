@@ -67,21 +67,21 @@ path 候補の骨子を比較し、第一候補と未確定論点を残すため
 
 | ラベル | path                         | 暫定method   | pathの種類 | 主リソース | 気になる点                                                                                                                                                                                                                                   |
 | ------ | ---------------------------- | ------------ | ---------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 案A    | /requests                    | POST         | collection | request    | -                                                                                                                                                                                                                                            |
+| 案A    | /requests                    | GET          | collection | request    | -                                                                                                                                                                                                                                            |
+| 案A    | /requests/{requestId}        | GET          | item       | request    | -                                                                                                                                                                                                                                            |
+| 案A    | /requests/{requestId}        | PUT or PATCH | item       | request    | -                                                                                                                                                                                                                                            |
 | 案A    | /requests/drafts             | POST         | collection | request    | -                                                                                                                                                                                                                                            |
 | 案A    | /requests/drafts             | GET          | collection | request    | -                                                                                                                                                                                                                                            |
 | 案A    | /requests/drafts/{requestId} | GET          | item       | request    | -                                                                                                                                                                                                                                            |
 | 案A    | /requests/drafts/{requestId} | PUT or PATCH | item       | request    | -                                                                                                                                                                                                                                            |
 | 案A    | /requests/drafts/{requestId} | DELETE       | item       | request    | -                                                                                                                                                                                                                                            |
-| 案A    | /requests                    | POST         | collection | request    | -                                                                                                                                                                                                                                            |
-| 案A    | /requests                    | GET          | collection | request    | -                                                                                                                                                                                                                                            |
-| 案A    | /requests/{requestId}        | GET          | item       | request    | -                                                                                                                                                                                                                                            |
-| 案A    | /requests/{requestId}        | PUT or PATCH | item       | request    | -                                                                                                                                                                                                                                            |
-| 案B    | /requests/drafts             | POST         | collection | request    | request 提出時、draft ラベルを付ける旨を form 内で選択すれば、drafts という path を切らなくてもよいきがする。しかし、下書きボタンによるdraftの作成は、明示的な path があるとわかりやすいか？                                                 |
-| 案B    | /requests/drafts/{requestId} | DELETE       | item       | request    | 下書きの場合の取消は物理データ削除の方針だったはずなので 下書きcancel と区別するために drafts というpath を切ってみたが、path を切らずとも、データ内に draft であることを示すラベルがあるならば、DELETE /requests/{requestId} で対応可能か？ |
 | 案B    | /requests                    | POST         | collection | request    | -                                                                                                                                                                                                                                            |
 | 案B    | /requests                    | GET          | collection | request    | 下書きと提出済みの request を区別して一覧取得したい場合はどうすればよいか                                                                                                                                                                    |
 | 案B    | /requests/{requestId}        | GET          | item       | request    | /requests/{requestId} は draft も submitted も同じ request item として扱う前提か                                                                                                                                                             |
 | 案B    | /requests/{requestId}        | PUT or PATCH | item       | request    | /requests/{requestId} は draft も submitted も同じ request item として扱う前提か                                                                                                                                                             |
+| 案B    | /requests/drafts             | POST         | collection | request    | request 提出時、draft ラベルを付ける旨を form 内で選択すれば、drafts という path を切らなくてもよいきがする。しかし、下書きボタンによるdraftの作成は、明示的な path があるとわかりやすいか？                                                 |
+| 案B    | /requests/drafts/{requestId} | DELETE       | item       | request    | 下書きの場合の取消は物理データ削除の方針だったはずなので 下書きcancel と区別するために drafts というpath を切ってみたが、path を切らずとも、データ内に draft であることを示すラベルがあるならば、DELETE /requests/{requestId} で対応可能か？ |
 | 案C    | /requests                    | POST         | collection | request    | draft を作成する場合は query で指定する                                                                                                                                                                                                      |
 | 案C    | /requests                    | GET          | collection | request    | draft を検索する場合は query で指定する                                                                                                                                                                                                      |
 | 案C    | /requests/{requestId}        | GET          | item       | request    | draft を検索する場合は query で指定する                                                                                                                                                                                                      |
@@ -231,10 +231,10 @@ path 候補の骨子を比較し、第一候補と未確定論点を残すため
 | ------ | ------------------- | ---------- | ---------- | ---------- | --------------------------------- |
 | 案A    | /tenants/{tenantId} | DELETE     | item       | tenant     | tenant 作成に関する path は必要か |
 | 案A    | /users              | POST       | collection | user       | -                                 |
+| 案A    | /users              | GET        | collection | user       | -                                 |
 | 案A    | /users/{userId}     | PATCH      | item       | user       | -                                 |
 | 案A    | /users/{userId}     | DELETE     | item       | user       | -                                 |
 | 案A    | /users/{userId}     | GET        | item       | user       | -                                 |
-| 案A    | /users              | GET        | collection | user       | -                                 |
 
 - 第一候補: 案A: tenant と user をそれぞれ独立した collection / item path で表現する案
 - 理由:
@@ -286,10 +286,10 @@ path 候補の骨子を比較し、第一候補と未確定論点を残すため
 | ラベル | path                                                                  | 暫定method | pathの種類  | 主リソース             | 気になる点                                                              |
 | ------ | --------------------------------------------------------------------- | ---------- | ----------- | ---------------------- | ----------------------------------------------------------------------- |
 | 案A    | /internal-organizations                                               | POST       | collection  | internal-organizations | -                                                                       |
+| 案A    | /internal-organizations                                               | GET        | collection  | internal-organizations | -                                                                       |
 | 案A    | /internal-organizations/{internalOrganizationId}                      | PATCH      | item        | internal-organizations | -                                                                       |
 | 案A    | /internal-organizations/{internalOrganizationId}                      | DELETE     | item        | internal-organizations | -                                                                       |
 | 案A    | /internal-organizations/{internalOrganizationId}                      | GET        | item        | internal-organizations | -                                                                       |
-| 案A    | /internal-organizations                                               | GET        | collection  | internal-organizations | -                                                                       |
 | 案A    | /internal-organization-memberships/                                   | POST       | collection  | internal-organizations | path が長すぎないか？                                                   |
 | 案A    | /internal-organization-memberships/{internalOrganizationMembershipId} | DELETE     | item        | internal-organizations | path が長すぎないか？                                                   |
 | 案B    | /internal-organizations/{id}/add-user                                 | POST       | subresource | internal-organizations | membership の指定をしないと organization と user の関連が不明確になるか |
@@ -343,12 +343,12 @@ path 候補の骨子を比較し、第一候補と未確定論点を残すため
 | ラベル | path                                                               | 暫定method   | pathの種類 | 主リソース        | 気になる点 |
 | ------ | ------------------------------------------------------------------ | ------------ | ---------- | ----------------- | ---------- |
 | 案A    | /approval-policies                                                 | POST         | collection | approval_policies | -          |
-| 案A    | /approval-policies/{id}                                            | GET          | item       | approval_policies | -          |
 | 案A    | /approval-policies                                                 | GET          | collection | approval_policies | -          |
+| 案A    | /approval-policies/{id}                                            | GET          | item       | approval_policies | -          |
 | 案A    | /approval-policies/{id}                                            | PUT or PATCH | item       | approval_policies | -          |
 | 案A    | /approval-policies/{id}                                            | DELETE       | item       | approval_policies | -          |
-| 案B    | /internal-organizations/{internalOrganizationId}/approval-policies | POST         | collection | approval_policies | -          |
 | 案B    | /internal-organizations/{internalOrganizationId}/approval-policies | GET          | collection | approval_policies | -          |
+| 案B    | /internal-organizations/{internalOrganizationId}/approval-policies | POST         | collection | approval_policies | -          |
 | 案B    | /approval-policies/{approvalPolicyId}                              | GET          | item       | approval_policies | -          |
 | 案B    | /approval-policies/{approvalPolicyId}                              | PATCH        | item       | approval_policies | -          |
 | 案B    | /approval-policies/{approvalPolicyId}                              | DELETE       | item       | approval_policies | -          |
@@ -378,9 +378,9 @@ path 候補の骨子を比較し、第一候補と未確定論点を残すため
 
 | ラベル | path                               | 暫定method | pathの種類 | 主リソース      | 気になる点 |
 | ------ | ---------------------------------- | ---------- | ---------- | --------------- | ---------- |
+| 案A    | /approval-routes                   | GET        | collection | approval_routes | -          |
 | 案A    | /approval-routes                   | POST       | collection | approval_routes | -          |
 | 案A    | /approval-routes/{approvalRouteId} | GET        | item       | approval_routes | -          |
-| 案A    | /approval-routes                   | GET        | collection | approval_routes | -          |
 | 案A    | /approval-routes/{approvalRouteId} | PATCH      | item       | approval_routes | -          |
 | 案A    | /approval-routes/{approvalRouteId} | DELETE     | item       | approval_routes | -          |
 
