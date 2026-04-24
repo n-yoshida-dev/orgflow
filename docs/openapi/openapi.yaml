@@ -681,7 +681,7 @@ components:
     LoginRequest:
       type: object
       required:
-        - email
+        - login_id
         - password
       properties:
         email:
