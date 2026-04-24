@@ -66,7 +66,6 @@ request に対する直接の操作は含めるが、request に対する承認�
 | request の下書き更新    | request    | -    |
 | request の下書き削除    | request    | -    |
 | request の下書き提出    | request    | -    |
-| request の即時提出      | request    | -    |
 | request 取消            | request    | -    |
 | 自分の request 一覧取得 | request    | -    |
 | request の詳細表示      | request    | -    |
@@ -76,7 +75,7 @@ request に対する直接の操作は含めるが、request に対する承認�
 - [collection / item / subresource / action のどれで置くか]
 - [一覧取得をどの単位で置くか]
 - [path にするときに揺れそうな点]
-- request の下書き提出と即時提出をどの単位で置くか（item で置くなら、/submit と /submit_and_approve のような path にするのが自然かなど）
+- [draft 提出と cancel を action path として置くのが自然か]
 
 ---
 
@@ -146,7 +145,7 @@ approval 群において、主リソースは `request` である。
 
 ### 6-1. この群の責務
 
-この群は、current tenant 配下の user 管理、tenant membership 管理、および tenant_membership への tenant_role 付与 / 剥奪 / 一覧取得を扱う。  
+この群は、current tenant 配下の user 管理、tenant membership 管理、および tenant_membership への tenant_role 付与 / 剥奪 / 一覧取得を扱う。
 internal_organization 単位の業務権限管理は internal_organization 管理群で扱う。
 
 ### 6-2. 誰が呼ぶ群か
@@ -155,8 +154,8 @@ internal_organization 単位の業務権限管理は internal_organization 管�
 
 ### 6-3. 主リソースを何として扱うか
 
-user 管理については、主リソースは `user` である。  
-tenant membership に対する tenant_role 付与 / 剥奪 / 一覧取得については、主リソースは `tenant_membership` である。  
+user 管理については、主リソースは `user` である。
+tenant membership に対する tenant_role 付与 / 剥奪 / 一覧取得については、主リソースは `tenant_membership` である。
 tenant_role は固定語彙であるため、主リソースとは扱わない。
 
 ### 6-4. この群に含める業務操作
@@ -186,7 +185,7 @@ tenant_role は固定語彙であるため、主リソースとは扱わない�
 
 ### 7-1. この群の責務
 
-この群は、internal_organization を管理する操作、および internal_organization_membership への internal_organization_role 付与 / 剥奪 / 一覧取得を扱う。  
+この群は、internal_organization を管理する操作、および internal_organization_membership への internal_organization_role 付与 / 剥奪 / 一覧取得を扱う。
 user 管理や tenant 全体の所属管理は tenant 管理群で扱う。
 
 ### 7-2. 誰が呼ぶ群か
@@ -195,14 +194,14 @@ user 管理や tenant 全体の所属管理は tenant 管理群で扱う。
 
 ### 7-3. 主リソースを何として扱うか
 
-internal_organization を管理する操作については、主リソースは `internal_organization` である。  
-internal_organization_membership への role 付与 / 剥奪については、主リソースは `internal_organization_membership_role` である。  
+internal_organization を管理する操作については、主リソースは `internal_organization` である。
+internal_organization_membership への role 付与 / 剥奪については、主リソースは `internal_organization_membership_role` である。
 また、一覧取得については、対象を `internal_organization` とみなし、internal_organization 配下の role 付与結果一覧として表現する。
 
 #### 補足：internal_organization_role付与/剥奪操作 の主リソースについて
 
-`internal_organization_role` は、internal_organization スコープの業務操作権限を表す固定語彙である。  
-`internal_organization_membership_role` は、ある `internal_organization_membership` に対して、どの `internal_organization_role` が付与されているかを表す付与結果である。  
+`internal_organization_role` は、internal_organization スコープの業務操作権限を表す固定語彙である。
+`internal_organization_membership_role` は、ある `internal_organization_membership` に対して、どの `internal_organization_role` が付与されているかを表す付与結果である。
 したがって、role 付与 / 剥奪 / 一覧取得という業務操作において、主リソースは `internal_organization_membership_role` として扱う。
 
 ### 7-4. この群に含める業務操作
