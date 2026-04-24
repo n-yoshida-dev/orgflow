@@ -1,3 +1,5 @@
 spring:
-  application:
-    name: orgflow-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orgflow
+    username: orgflow
+    password: orgflow
