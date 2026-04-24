@@ -681,12 +681,11 @@ components:
     LoginRequest:
       type: object
       required:
-        - login_id
+        - loginId
         - password
       properties:
-        email:
+        loginId:
           type: string
-          format: email
         password:
           type: string
 
