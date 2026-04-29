@@ -918,11 +918,11 @@ components:
           type: string
           format: uuid
           description: 内部組織メンバーシップID
-        internalOrganizationRoleId:
+        internal_organization_role_id:
           type: string
           format: uuid
           description: ロールID
-        internalOrganizationRoleName:
+        internal_organization_role_name:
           type: string
           description: ロール名
 
