@@ -918,11 +918,11 @@ components:
           type: string
           format: uuid
           description: 内部組織メンバーシップID
-        role_id:
+        internalOrganizationRoleId:
           type: string
           format: uuid
           description: ロールID
-        role_name:
+        internalOrganizationRoleName:
           type: string
           description: ロール名
 
@@ -936,7 +936,9 @@ components:
           description: 認証トークン（JWT）
         currentTenantId:
           type: string
-          description: 現在選択中のテナントID
+          format: uuid
+          nullable: true
+          description: 現在選択中のテナントID。ログイン直後は未選択のため null。
 
     TenantSelectResponse:
       type: object
