@@ -681,12 +681,11 @@ components:
     LoginRequest:
       type: object
       required:
-        - email
+        - loginId
         - password
       properties:
-        email:
+        loginId:
           type: string
-          format: email
         password:
           type: string
 
@@ -919,11 +918,11 @@ components:
           type: string
           format: uuid
           description: 内部組織メンバーシップID
-        role_id:
+        internal_organization_role_id:
           type: string
           format: uuid
           description: ロールID
-        role_name:
+        internal_organization_role_name:
           type: string
           description: ロール名
 
@@ -937,7 +936,9 @@ components:
           description: 認証トークン（JWT）
         currentTenantId:
           type: string
-          description: 現在選択中のテナントID
+          format: uuid
+          nullable: true
+          description: 現在選択中のテナントID。ログイン直後は未選択のため null。
 
     TenantSelectResponse:
       type: object

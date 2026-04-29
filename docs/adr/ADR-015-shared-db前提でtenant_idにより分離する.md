@@ -19,7 +19,7 @@ tenant と internal organization を分離し、current tenant を切り替え�
 
 ## 採用した案
 
-OrgFlow は Phase 1 では **shared DB 前提** で進める。  
+OrgFlow は Phase 1 では **shared DB 前提** で進める。
 tenant 境界は tenant_id により表現し、別 tenant のデータは current tenant を切り替えない限り参照できない前提とする。
 
 ## 採用理由
@@ -28,7 +28,7 @@ tenant 境界は tenant_id により表現し、別 tenant のデータは curre
 - current tenant を前提にした承認一覧、監査ログ閲覧、設定管理の説明がしやすい
 - tenant ごとに DB を分ける設計に比べて、Phase 1 の実装・検証・README / ADR 説明のコストを抑えやすい
 - physical ER で tenant 一致制約や検索用 index を考えやすい
-- まずは B2B SaaS のバックエンド基盤を説明可能にすることを優先する、という Phase 1 の目的と合う
+- まずはマルチテナント構成を持つ業務アプリケーションのバックエンド基盤を説明可能にすることを優先する、という Phase 1 の目的と合う
 
 ## 不採用案
 

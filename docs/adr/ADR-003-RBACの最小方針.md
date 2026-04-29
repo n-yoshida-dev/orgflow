@@ -39,27 +39,27 @@
 - 代理承認や閲覧権限などを追加する場合
 - roleとapproval_policyの責務分担を再整理する必要が出た場合
 
-## 追記: membership_roles テーブルの追加（2026-03-25）
+## 追記: internal_organization_membership_roles テーブルの追加（2026-03-25）
 
 ### 決定
 
-`role` は `organization_memberships` に直接持たず、
-`membership_roles` という中間テーブルを介して付与する。
+`role` は `internal_organization_memberships` に直接持たず、
+`internal_organization_membership_roles` という中間テーブルを介して付与する。
 
-`membership_roles` の1件は、
-「ある組織への所属（organization_membership）に対して、あるロールが付与されている」
+`internal_organization_membership_roles` の1件は、
+「ある組織への所属（internal_organization_memberships）に対して、あるロールが付与されている」
 という事実を表す。
 
-`(organization_membership_id, role_id)` の組み合わせに一意制約を置き、
+`(internal_organization_memberships_id, internal_organization_role_id)` の組み合わせに一意制約を置き、
 同じ所属に対して同じロールが重複して付与されることを防ぐ。
 
 ### 採用理由
 
 同じ組織への所属に対して複数のロールが付きうるため、
-`organization_memberships` テーブルに `role_id` カラムを直接持つと
+`internal_organization_memberships` テーブルに `internal_organization_role_id` カラムを直接持つと
 1ロールしか表現できない。
 
 ### 受け入れる制約
 
 あるユーザーの組織内ロールを確認するクエリで、
-`organization_memberships` と `membership_roles` の JOIN が必要になる。
+`internal_organization_memberships` と `internal_organization_membership_roles` の JOIN が必要になる。
