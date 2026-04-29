@@ -56,6 +56,9 @@
 - [ADR-017](./ADR-017-OpenAPIをAPI契約としてv1に絞って先に管理する理由.md)
   OpenAPI を API 契約として v1 の重要 endpoint から先に管理する
 
+- [ADR-018](./ADR-018-ローカル開発DBはDocker ComposeのPostgreSQLで起動する.md)
+  ローカル開発DBを Docker Compose の PostgreSQL で起動する
+
 ## テンプレート
 
 新しい ADR を作成するときは [ひな形](./ひな形-ADR-xxx-___.md) を使ってください。
