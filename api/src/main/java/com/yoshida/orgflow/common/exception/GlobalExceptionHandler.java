@@ -22,6 +22,11 @@ public class GlobalExceptionHandler {
       String message) {
   }
 
+  public record ErrorResponse(
+      int status,
+      String message) {
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ValidationErrorResponse> handleValidationError(MethodArgumentNotValidException ex) {
 
@@ -37,6 +42,16 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(status)
         .body(response);
+  }
+
+  @ExceptionHandler(AuthenticationFailedException.class)
+  public ResponseEntity<ErrorResponse> handleAuthError(AuthenticationFailedException ex) {
+
+    HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "loginId または password が正しくありません");
+
+    return ResponseEntity.status(status).body(response);
   }
 
 }
