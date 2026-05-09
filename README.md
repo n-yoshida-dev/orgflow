@@ -156,22 +156,26 @@ Phase 1 では、Java / Spring Boot による OrgFlow API v1 を対象に、以�
 - `@Valid` 失敗時に 422 を返す `GlobalExceptionHandler` を作成
 - Postman で `POST /login` の正常系とバリデーションエラー系を確認
 
-現時点の `/login` は、まだ本物の認証処理ではありません。
-現在は、Controller / Service / DTO / 例外処理の最小土台を作った段階です。
+`POST /login` では、DB 上の `users` テーブルに登録された user を使い、loginId / password による最小限の本人確認を行う。
 
-未実装の内容は次のとおりです。
+現在の処理は次のとおり。
 
-- users テーブルへの問い合わせ
-- パスワード照合
+- `LoginRequest` で `loginId` と `password` を受け取る
+- `UserRepository#findByLoginId` で `users` テーブルから user を検索する
+- user が存在しない場合は 401 を返す
+- user が存在する場合、入力 password と `users.hashed_password` を `PasswordEncoder#matches` で照合する
+- password が一致しない場合も 401 を返す
+- user 未存在と password 不一致は、外部には同じメッセージとして返す
+- 成功時は、現時点では `dummy-token` と `currentTenantId = null` を返す
+
+まだ未実装の内容は次のとおり。
+
 - JWT 生成
-- Bearer token から `Authentication` を作る処理
+- Bearer token filter
+- SecurityContext への認証情報設定
 - `POST /tenants/{tenantId}/select`
 - current tenant 入り token の再発行
-- request / approval 系の業務処理
-- RBAC の本実装
-- 監査ログ記録
-- 単体テスト / 統合テスト
-- GitHub Actions CI
+- login 成功 / 失敗の監査ログ記録
 
 ## ローカル起動の現状
 
