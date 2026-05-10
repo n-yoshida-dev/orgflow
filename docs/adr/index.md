@@ -59,6 +59,8 @@
 - [ADR-018](./ADR-018-ローカル開発DBはDocker ComposeのPostgreSQLで起動する.md)
   ローカル開発DBを Docker Compose の PostgreSQL で起動する
 
+- [ADR-019: DBマイグレーションと seed データを Flyway で管理する](./ADR-019-DBマイグレーションとseedデータをFlywayで管理する.md)
+
 ## テンプレート
 
 新しい ADR を作成するときは [ひな形](./ひな形-ADR-xxx-___.md) を使ってください。
