@@ -3,6 +3,8 @@ package com.yoshida.orgflow.service;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -25,6 +27,8 @@ public class JwtTokenService {
     Instant now = Instant.now();
     Instant expiresAt = now.plus(jwtProperties.getAccessTokenExpiresIn());
 
+    JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
+
     JwtClaimsSet claims = JwtClaimsSet.builder()
         .issuer(jwtProperties.getIssuer())
         .issuedAt(now)
@@ -32,7 +36,7 @@ public class JwtTokenService {
         .subject(userId.toString())
         .build();
 
-    JwtEncoderParameters parameters = JwtEncoderParameters.from(claims);
+    JwtEncoderParameters parameters = JwtEncoderParameters.from(jwsHeader, claims);
     Jwt jwt = jwtEncoder.encode(parameters);
 
     return jwt.getTokenValue();
