@@ -480,13 +480,14 @@ jwt:
 - DTO バリデーションエラー時の 422
 - JWT access token 発行
 - Bearer token として送られた JWT の検証
-- JWTなし / 正常JWT / 改ざんJWT / 期限切れJWT の確認
+- JWT issuer claim の検証
+- JWTなし / 正常JWT / 改ざんJWT / 期限切れJWT / issuer不一致JWT の確認
 - `/hello-auth` による保護APIの確認
 
 ### 未実装
 
-- issuer 検証
 - JWT の `sub` から userId を取り出してアプリ側で利用する処理
+- `Authentication` / `SecurityContext` / `JwtAuthenticationToken` の中身の整理
 - `POST /tenants/{tenantId}/select`
 - current tenant 入り token の再発行
 - tenant / role / membership を使った認可
@@ -497,20 +498,17 @@ jwt:
 
 ## 次に実装する予定
 
-次は、JWT検証フェーズの仕上げとして、issuer 検証を追加します。
+次は、JWT検証後に Spring Security 上で認証済みユーザー情報がどのように扱われるかを確認します。
 
-現時点では、JWT に `iss` は含めていますが、`JwtDecoder` 側で `jwt.issuer` と一致するかを明示的に検証していません。
+具体的には、以下を確認します。
 
-次工程では、以下を確認します。
+1. JWT検証後に `Authentication` がどのように作られるか
+2. `SecurityContext` に何が入るか
+3. `JwtAuthenticationToken` から JWT claim をどう参照できるか
+4. JWT の `sub` から `users.id` を取り出す方法
+5. アプリケーション側で「このリクエストは誰のものか」を扱う最小方針
 
-1. `JwtDecoder` に issuer 検証を追加する
-2. 正常 token で `/hello-auth` が 200 のままになることを確認する
-3. issuer が想定外の token を拒否できるか確認する
-4. 既存の JWTなし / 改ざんJWT / 期限切れJWT の確認が壊れていないことを確認する
-
-その後、JWT の `sub` から userId を取り出し、アプリケーション側で「このリクエストは誰のものか」を扱う方法を整理します。
-
-ただし、tenant / role による認可は、`sub` から userId を取り出す流れを確認した後に進めます。
+その後、`POST /tenants/{tenantId}/select` に進み、current tenant 入り token の再発行と、tenant / role / membership を使った認可へ接続します。
 
 ## 補足
 
