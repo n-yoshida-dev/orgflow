@@ -15,10 +15,15 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final JwtTokenService jwtTokenService;
 
-  public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public AuthService(
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      JwtTokenService jwtTokenService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.jwtTokenService = jwtTokenService;
   }
 
   public LoginResponse login(String loginId, String password) {
@@ -28,6 +33,9 @@ public class AuthService {
     if (!passwordEncoder.matches(password, user.getHashedPassword())) {
       throw new AuthenticationFailedException(AUTHENTICATION_FAILED_MESSAGE);
     }
-    return new LoginResponse("dummy-token", null);
+
+    String accessToken = jwtTokenService.generateAccessToken(user.getId());
+
+    return new LoginResponse(accessToken, null);
   }
 }

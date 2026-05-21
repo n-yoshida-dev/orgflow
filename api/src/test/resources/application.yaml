@@ -3,3 +3,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/orgflow
     username: orgflow
     password: orgflow
+jwt:
+  issuer: orgflow-api
+  secret: ${ORGFLOW_JWT_SECRET}
+  access-token-expires-in: 1h
