@@ -45,11 +45,21 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(AuthenticationFailedException.class)
-  public ResponseEntity<ErrorResponse> handleAuthError(AuthenticationFailedException ex) {
+  public ResponseEntity<ErrorResponse> handleAuthenticationFailed(AuthenticationFailedException ex) {
 
     HttpStatus status = HttpStatus.UNAUTHORIZED;
 
     ErrorResponse response = new ErrorResponse(status.value(), "loginId または password が正しくありません");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
+  @ExceptionHandler(InvalidJwtSubjectException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidJwtSubject(InvalidJwtSubjectException ex) {
+
+    HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "認証情報が不正です");
 
     return ResponseEntity.status(status).body(response);
   }
