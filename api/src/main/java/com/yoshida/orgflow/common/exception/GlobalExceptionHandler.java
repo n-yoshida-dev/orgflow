@@ -64,4 +64,14 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(status).body(response);
   }
 
+  @ExceptionHandler(TenantMembershipNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleTenantMembershipNotFound(TenantMembershipNotFoundException ex) {
+
+    HttpStatus status = HttpStatus.NOT_FOUND;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "対象のtenantが見つかりません");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
 }
