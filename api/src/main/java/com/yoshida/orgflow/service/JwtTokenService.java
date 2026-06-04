@@ -41,4 +41,24 @@ public class JwtTokenService {
 
     return jwt.getTokenValue();
   }
+
+  public String generateAccessTokenWithCurrentTenant(UUID userId, UUID tenantId) {
+    Instant now = Instant.now();
+    Instant expiresAt = now.plus(jwtProperties.getAccessTokenExpiresIn());
+
+    JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
+
+    JwtClaimsSet claims = JwtClaimsSet.builder()
+        .issuer(jwtProperties.getIssuer())
+        .issuedAt(now)
+        .expiresAt(expiresAt)
+        .subject(userId.toString())
+        .claim("current_tenant_id", tenantId.toString())
+        .build();
+
+    JwtEncoderParameters parameters = JwtEncoderParameters.from(jwsHeader, claims);
+    Jwt jwt = jwtEncoder.encode(parameters);
+
+    return jwt.getTokenValue();
+  }
 }
