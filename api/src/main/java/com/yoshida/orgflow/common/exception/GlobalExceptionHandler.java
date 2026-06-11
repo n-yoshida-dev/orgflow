@@ -74,4 +74,24 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(status).body(response);
   }
 
+  @ExceptionHandler(CurrentTenantNotSelectedException.class)
+  public ResponseEntity<ErrorResponse> handleCurrentTenantNotSelected(CurrentTenantNotSelectedException ex) {
+
+    HttpStatus status = HttpStatus.FORBIDDEN;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "tenantが未選択です");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
+  @ExceptionHandler(InvalidJwtCurrentTenantIdException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidJwtCurrentTenantId(InvalidJwtCurrentTenantIdException ex) {
+
+    HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "認証情報が不正です");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
 }
