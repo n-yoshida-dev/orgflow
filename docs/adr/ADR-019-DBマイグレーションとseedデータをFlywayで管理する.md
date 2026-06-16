@@ -101,3 +101,66 @@ Docker volume は、現在の DB データをローカルに永続化するた�
 - 外部 IdP や Cognito 等を導入し、アプリ側で password を保持しない方式に移行する場合
 - seed データの種類が増え、開発用 seed とテスト用 seed を分ける必要が出た場合
 - Phase 2 以降で、環境ごとに migration / seed の適用方針を分ける必要が出た場合
+
+## 追記: tenants / tenant_memberships の追加とFlyway checksum mismatchの扱い（2026-06-04）
+
+### 背景
+
+`POST /tenants/{tenantId}/select` を実装するためには、user と tenant の所属関係をDBで確認できる必要があった。
+
+そのため、Flyway migrationとして `tenants` と `tenant_memberships` を追加した。
+
+また、動作確認用に、正常性確認用tenantと404確認用tenantをseedデータとして追加した。
+
+実装途中でSQL formatterにより既存のV1/V2 migrationファイルの空白や改行が変わり、Flywayのchecksum mismatchが発生した。
+
+### 決定
+
+`V3__create_tenants_and_tenant_memberships.sql` で、以下のテーブルを追加する。
+
+- `tenants`
+- `tenant_memberships`
+
+`tenant_memberships` は、`tenant_id` と `user_id` を持ち、`(tenant_id, user_id)` に一意制約を置く。
+
+`V4__seed_tenants_and_tenant_memberships.sql` で、以下の確認用データを追加する。
+
+- 正常性確認用テナント
+- 404確認用テナント
+- `test_taro` が正常性確認用テナントに所属するmembership
+
+### 採用理由
+
+`selectTenant` で必要なのは、認証済みuserIdと指定tenantIdの組み合わせに対応するmembershipが存在するかどうかである。
+
+そのため、Serviceではtenant一覧を取得して比較するのではなく、Repositoryで `userId` と `tenantId` の組み合わせの存在確認を行う。
+
+DB側で `(tenant_id, user_id)` に一意制約を置くことで、同じuserが同じtenantに重複所属する不整合を防ぐ。
+
+### Flyway checksum mismatch から得たルール
+
+一度DBに適用済みのversioned migrationファイルは、原則として後から編集しない。
+
+SQLの意味が変わっていなくても、空白や改行が変わるだけでFlywayのchecksumが変わり、validateで失敗する。
+
+ローカル開発DBでデータを捨ててよい場合は、`docker compose down -v` によりvolumeを削除し、V1から再適用する。
+
+一方、本番DBや消してはいけない検証DBでは、安易にvolume削除やmigration編集を行わない。
+
+### 受け入れる制約
+
+現時点では、`tenant_memberships` の外部キーに `ON DELETE CASCADE` を付ける。
+
+ただし、これは `selectTenant` 最小実装のための暫定判断である。
+
+将来、`requests`、`approvals`、`audit_logs` を実装する段階で、tenant / user / membership の物理削除を本当に許すか、論理削除に寄せるかを再検討する。
+
+### 見直す条件
+
+監査ログ実装時。
+
+申請・承認データがtenant / user / membershipを参照するようになった時。
+
+tenantやuserの削除APIを実装する時。
+
+本番相当DBでmigrationを運用する段階に入った時。
