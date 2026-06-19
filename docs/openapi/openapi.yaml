@@ -37,6 +37,25 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /me/tenants:
+    get:
+      operationId: listMyTenants
+      tags:
+        - Tenant
+      summary: 自分が所属するtenant一覧取得
+      description: 認証済みJWTのsubから取得したuserIdをもとに、そのuserが所属しているtenant一覧を返す。current_tenant_idは使用しないため、ログイン直後JWTでもtenant選択後JWTでも呼び出せる。
+      responses:
+        '200':
+          description: 所属tenant一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
   /tenants/{tenantId}/select:
     post:
       operationId: selectTenant
@@ -939,6 +958,20 @@ components:
           format: uuid
           nullable: true
           description: 現在選択中のテナントID。ログイン直後は未選択のため null。
+
+    TenantResponse:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+          description: tenant ID
+        tenantName:
+          type: string
+          description: tenant名
+      required:
+        - tenantId
+        - tenantName
 
     TenantSelectResponse:
       type: object
