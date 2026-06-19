@@ -1,6 +1,7 @@
 業務操作名	API群	主リソース	一文責務	呼び出し主体	対象	事前条件	状態変化	認証	認可	主要エラー	監査対象か
 login	認証・コンテキスト群	認証情報	利用者を認証し、OrgFlow の利用を開始できる状態にする	未ログインの利用者	認証セッション	OrgFlow からログアウト状態であること	ログイン状態になる	未認証操作	不要	401	Yes（ログイン操作を記録）
 current tenant 切替	認証・コンテキスト群	現在利用中のtenantのコンテキスト	認証済み利用者の current tenant コンテキストを、所属可能な tenant の中から 1 つに設定または変更する	ログイン済みの利用者	current tenant コンテキスト	認証済みで、切替先 tenant が存在すること	現在の tenant から選択した tenant へ current tenant が切り替わる	要認証	選択した tenant へ所属していること	401 / 403 / 404	Yes（current tenant 切替操作を記録）
+自分が所属するtenant一覧取得	認証・コンテキスト群	tenant	認証済み利用者が、自分が所属している tenant の一覧を取得する。	ログイン済みの利用者	所属tenant一覧	認証済みであること	変化なし	要認証	不要	401	No
 request の下書き作成	request 群	request	申請者が、申請可能な internal organization を指定して、新しい request の下書きを 1 件作成する。	申請者	新規 request	ログイン済みで current tenant が選択済みであること	request が draft 状態で新規作成される	要認証	current tenant 内で、指定 internal organization に対する申請権限があること	401 / 403 / 404 / 409 / 422 / 500	Yes（request 作成として記録）
 request の下書き更新	request 群	request	申請者が、draft 状態の request を指定して更新する。	申請者	draft 状態の request	対象 request が draft 状態であること	request が更新される（状態は draft 状態のまま）	要認証	更新対象 request が所属する internal organization にて申請権限があること	401 / 403 / 404 / 409	Yes（request 更新として記録）
 request の下書き削除	request 群	request	申請者が、draft 状態の request を指定して削除する。	申請者	draft 状態の request	対象 request が draft 状態であること	request が物理削除される	要認証	削除対象 request が所属する internal organization にて request 削除権限を持つこと	401 / 403 / 404 / 409	Yes（request 削除として記録）

@@ -1,6 +1,7 @@
 operationId	HTTPメソッド	path	controller	service	認証	粗い認可(Security)	細かい認可(Service/Policy)	transaction	監査ログ	主なRepository	主な4xx	メモ
 login	POST	/login	AuthController#login	AuthService#login	不要	permitAll	なし	なし	成功/失敗とも記録	UserRepository	401,422	成功時にaccess token発行
 selectTenant	POST	/tenants/{tenantId}/select	AuthController#selectTenant	AuthService#selectTenant	要	authenticated	その user が切替先 tenant に所属しているか	なし	成功時に記録	TenantMembershipRepository	400,401,404	current_tenant_id入りtokenを再発行。membershipなしとtenant不存在は外部には404で丸める
+listMyTenants	GET	/me/tenants	TenantController#getTenantsForCurrentUser	TenantService#listTenantsForUser	要	authenticated	なし	readOnly	なし	TenantMembershipRepository, TenantRepository	401	認証済みuserが所属しているtenant一覧を返す。current_tenant_idは使用しない。所属tenantが0件の場合は200 + 空配列を返す
 createRequest	POST	/requests	RequestController#createDraft	RequestService#createDraft	要	authenticated	current tenant での、申請対象 internal organization に対する申請権限があるか	あり	成功時に記録	RequestRepository	401,403,422	下書き作成
 listRequests	GET	/requests	RequestController#list	RequestService#list	要	authenticated	current tenant での、閲覧対象 request とその request が所属する internal organization に対する閲覧権限があること	readOnly	なし	RequestRepository	401,403
 getRequest	GET	/requests/{requestId}	RequestController#get	RequestService#get	要	authenticated	current tenant での、閲覧対象 request とその request が所属する internal organization に対する閲覧権限があること	readOnly	なし	RequestRepository	401,403,404
