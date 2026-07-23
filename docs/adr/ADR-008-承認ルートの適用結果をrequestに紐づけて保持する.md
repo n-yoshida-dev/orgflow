@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-03-24
 
+> **決定**: request は approval_policy を直接参照しない。submit 時に承認ルートを評価し、その結果を applied_approval_route として保存する（1 request に 1 applied_approval_route）。
+
 ## 背景
 
 - request は draft と submitted を分けて扱う

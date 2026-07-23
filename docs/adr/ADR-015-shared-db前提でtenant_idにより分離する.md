@@ -2,6 +2,9 @@
 
 - Status: Accepted
 - Date: 2026-04-07
+- 最終追記: 2026-04-08
+
+> **決定**: Phase 1 は shared DB 前提とし、tenant 境界を `tenant_id` で表現する。DB 制約で表現できる tenant 一致は physical ER に落とし、申請可能条件の最終判定は認可ロジック側に残す。
 
 ## 背景
 

@@ -1,7 +1,13 @@
 # ADR-006: applied_approval_route の保存構造
 
-- Status: Accepted
+- Status: Superseded by [ADR-009](./ADR-009-applied_approval_routeを親子構造で保持する.md)
 - Date: 2026-03-24
+
+> **決定**: applied_approval_route を `applied_approval_routes` → `applied_approval_route_steps` → `applied_approval_route_step_approvers` の3層構造で保存する。
+>
+> **この ADR は参照不要**: 結論は [ADR-009](./ADR-009-applied_approval_routeを親子構造で保持する.md) と同一で、ADR-009 の方が不採用案（1段1承認者に制限する案）と ADR-010 との整合まで書かれている。
+> 「なぜ適用結果を保存するのか」は [ADR-008](./ADR-008-承認ルートの適用結果をrequestに紐づけて保持する.md) が扱う。
+> 以降は ADR-008（保存する理由）と ADR-009（保存する粒度）を参照すること。本文は判断の経緯として残す。
 
 ## 背景
 

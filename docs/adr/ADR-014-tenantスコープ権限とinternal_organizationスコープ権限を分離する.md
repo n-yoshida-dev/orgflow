@@ -2,6 +2,9 @@
 
 - Status: Accepted
 - Date: 2026-04-06
+- 最終追記: 2026-04-10
+
+> **決定**: 権限を `TENANT_ROLE` と `INTERNAL_ORGANIZATION_ROLE` に分離し、付与関係を各 membership_roles で表す。internal_organization_membership_role の付与・剥奪・一覧取得は internal organization 管理者の責務とする。
 
 ## 背景
 
