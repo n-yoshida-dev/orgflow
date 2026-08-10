@@ -5,6 +5,8 @@
 
 各 ADR の冒頭には `> **決定**:` の一文があります。まずそこだけ読めば判断の結論が分かります。
 
+1 ファイルには 1 つの決定だけを書きます。決定が増えた場合は既存 ADR へ追記せず、新しい ADR を作成して両方の「関連」に相互リンクを置きます。
+
 ## 一覧
 
 | # | 決定 | Status | 日付 | 最終追記 |
@@ -24,10 +26,17 @@
 | [013](./ADR-013-tenantとinternal_organizationを分離する.md) | tenant と internal organization を別概念として分離する | Accepted | 2026-04-06 | - |
 | [014](./ADR-014-tenantスコープ権限とinternal_organizationスコープ権限を分離する.md) | 権限を `TENANT_ROLE` と `INTERNAL_ORGANIZATION_ROLE` に分離する | Accepted | 2026-04-06 | 2026-04-10 |
 | [015](./ADR-015-shared-db前提でtenant_idにより分離する.md) | shared DB 前提とし、tenant 境界を `tenant_id` で表現する | Accepted | 2026-04-07 | 2026-04-08 |
-| [016](./ADR-016-認証方式の選定理由.md) | Bearer token（JWT / HS256）を用いる認証済み API として設計する | Accepted | 2026-04-19 | 2026-06-19 |
+| [016](./ADR-016-認証はBearerTokenで行う.md) | 認証は Bearer token（JWT / HS256）で行う | Accepted | 2026-04-19 | - |
 | [017](./ADR-017-OpenAPIをAPI契約としてv1に絞って先に管理する理由.md) | OpenAPI を API 契約として v1 の重要 endpoint から先に管理する | Accepted | 2026-04-19 | - |
 | [018](./ADR-018-ローカル開発DBはDocker ComposeのPostgreSQLで起動する.md) | ローカル開発DBを Docker Compose の PostgreSQL で起動する | Accepted | 2026-04-29 | - |
 | [019](./ADR-019-DBマイグレーションとseedデータをFlywayで管理する.md) | DBマイグレーションと seed データを Flyway で管理する | Accepted | 2026-05-03 | 2026-06-04 |
+| [020](./ADR-020-APIをstateless前提のSecurity構成にする.md) | API を stateless 前提の Spring Security 構成にする | Accepted | 2026-04-29 | - |
+| [021](./ADR-021-ログイン認証はDBのusersとBCryptで照合する.md) | ログイン認証は DB の users と BCrypt で照合する | Accepted | 2026-05-09 | - |
+| [022](./ADR-022-JWTの発行と検証をSpringSecurityに寄せる.md) | JWT の発行と検証を Spring Security の標準機構に寄せる | Accepted | 2026-05-12 | - |
+| [023](./ADR-023-認証済みuserIdはJWTのsubから取り出す.md) | 認証済み userId は JWT の `sub` から取り出し、Service へは UUID で渡す | Accepted | 2026-05-24 | - |
+| [024](./ADR-024-tenant選択状態をJWTのcurrent_tenant_idで表現する.md) | tenant 選択状態を JWT の `current_tenant_id` claim で表現する | Accepted | 2026-06-04 | - |
+
+番号は登録順の通し番号であり、日付順とは一致しません。020〜024 は 016 から分割した決定のため、016〜019 より前の日付を含みます。
 
 ## テーマ別に読む
 
@@ -35,7 +44,8 @@
 - 業務フローと request: 004 / 005 / 007 / 008
 - 承認ルート: 009 / 010 / 012（006 は 009 に置き換え済み）
 - テナントと権限: 003 / 013 / 014 / 015
-- 認証・API 契約: 016 / 017
+- 認証: 016 → 020 → 021 → 022 → 023 → 024（この順に読むと実装の進み方に沿う）
+- API 契約: 017
 - 監査ログ: 002 / 011
 - ローカル開発基盤: 018 / 019
 
