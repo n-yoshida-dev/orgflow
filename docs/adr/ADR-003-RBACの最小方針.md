@@ -2,6 +2,9 @@
 
 - Status: Accepted
 - Date: 2026-03-19
+- 最終追記: 2026-03-25
+
+> **決定**: 組織への所属に対して role を付与し、role は操作権限のみを表す。role は `internal_organization_membership_roles` 中間テーブルを介して付与する。
 
 ## 背景
 
@@ -15,6 +18,10 @@
 ## 採用した案
 
 組織への所属に対してroleを付与し、roleは操作権限のみを表す
+
+> この節では role の保存方法までは決めていない。
+> 実際の付与は `internal_organization_membership_roles` 中間テーブルを介する。
+> → [追記: internal_organization_membership_roles テーブルの追加（2026-03-25）](#追記-internal_organization_membership_roles-テーブルの追加2026-03-25)
 
 ## 採用理由
 

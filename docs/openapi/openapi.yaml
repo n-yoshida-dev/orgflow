@@ -711,14 +711,18 @@ components:
     CreateRequestInput:
       type: object
       required:
-        - internal_organization_id
-        - request_type
+        - title
+        - internalOrganizationId
+        - requestType
         - amount
       properties:
-        internal_organization_id:
+        title:
+          type: string
+          maxLength: 100
+        internalOrganizationId:
           type: string
           format: uuid
-        request_type:
+        requestType:
           type: string
           enum: [transportation_expenses, travel_expenses, equipment_purchase_expenses]
         amount:
@@ -740,31 +744,31 @@ components:
     CreateUserRequest:
       type: object
       required:
-        - display_name
-        - login_id
+        - displayName
+        - loginId
         - password
-        - mail_address
+        - mailAddress
       properties:
-        display_name:
+        displayName:
           type: string
-        login_id:
+        loginId:
           type: string
         password:
           type: string
-        mail_address:
+        mailAddress:
           type: string
           format: email
 
     UpdateUserRequest:
       type: object
       properties:
-        display_name:
+        displayName:
           type: string
-        login_id:
+        loginId:
           type: string
         password:
           type: string
-        mail_address:
+        mailAddress:
           type: string
           format: email
 
@@ -779,9 +783,9 @@ components:
     CreateInternalOrganizationMembershipRole:
       type: object
       required:
-        - internal_organization_role
+        - internalOrganizationRole
       properties:
-        internal_organization_role:
+        internalOrganizationRole:
           type: string
 
     # ---- Entities ----
@@ -793,17 +797,17 @@ components:
           type: string
           format: uuid
           description: ユーザーID
-        display_name:
+        displayName:
           type: string
           description: 表示名
-        login_id:
+        loginId:
           type: string
           description: ログインID
-        mail_address:
+        mailAddress:
           type: string
           format: email
           description: メールアドレス
-        created_at:
+        createdAt:
           type: string
           format: date-time
           description: 作成日時
@@ -815,50 +819,58 @@ components:
           type: string
           format: uuid
           description: リクエストID
-        tenant_id:
+        tenantId:
           type: string
           format: uuid
           description: テナントID
-        request_series_id:
+        requestSeriesId:
           type: string
           format: uuid
           description: リクエストシリーズID（同一申請の改版をまとめる単位）
-        version_no:
+        versionNo:
           type: integer
           description: バージョン番号
-        user_id:
-          type: string
-          format: uuid
-          description: 作成ユーザーID
         status:
           type: string
           enum: [draft, in_progress, approved, returned, rejected, cancelled]
           description: リクエストの状態
-        current_applied_approval_route_step_id:
+        currentAppliedApprovalRouteStepId:
           type: string
           format: uuid
           nullable: true
           description: 現在の承認ルートステップID
-        applicant_user_id:
+        applicantUserId:
           type: string
           format: uuid
           description: 申請者ユーザーID
-        internal_organization_id:
+        internalOrganizationId:
           type: string
           format: uuid
           description: 申請元の内部組織ID
-        request_type:
+        requestType:
           type: string
           enum: [transportation_expenses, travel_expenses, equipment_purchase_expenses]
           description: 申請種別
+        title:
+          type: string
+          maxLength: 100
+          description: 申請の件名
+        description:
+          type: string
+          nullable: true
+          description: 申請の詳細
         amount:
           type: integer
           minimum: 0
           description: 申請金額（円）
-        created_at:
+        createdAt:
           type: string
           format: date-time
           description: 作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
 
     AuditLog:
       type: object
@@ -867,42 +879,42 @@ components:
           type: string
           format: uuid
           description: 監査ログID
-        actor_tenant_id:
+        actorTenantId:
           type: string
           format: uuid
           description: 操作者のテナントID
-        actor_user_id:
+        actorUserId:
           type: string
           format: uuid
           description: 操作者のユーザーID
-        actor_user_display_name:
+        actorUserDisplayName:
           type: string
           description: 操作者の表示名
-        actor_internal_organization_id:
+        actorInternalOrganizationId:
           type: string
           format: uuid
           nullable: true
           description: 操作者の内部組織ID
-        actor_internal_organization_name:
+        actorInternalOrganizationName:
           type: string
           nullable: true
           description: 操作者の内部組織名
-        actor_user_mail_address:
+        actorUserMailAddress:
           type: string
           format: email
           description: 操作者のメールアドレス
-        target_type:
+        targetType:
           type: string
           description: 操作対象のリソース種別
-        target_id:
+        targetId:
           type: string
           format: uuid
           description: 操作対象のID
-        operation_type:
+        operationType:
           type: string
           enum: [create, update, delete, submit, approve, return, reject, cancel, login, logout]
           description: 操作種別
-        occurred_at:
+        occurredAt:
           type: string
           format: date-time
           description: 操作発生日時
@@ -914,15 +926,15 @@ components:
           type: string
           format: uuid
           description: テナントメンバーシップロールID
-        tenant_membership_id:
+        tenantMembershipId:
           type: string
           format: uuid
           description: テナントメンバーシップID
-        tenant_role_id:
+        tenantRoleId:
           type: string
           format: uuid
           description: テナントロールID
-        role_name:
+        roleName:
           type: string
           description: ロール名
 
@@ -933,15 +945,15 @@ components:
           type: string
           format: uuid
           description: 内部組織メンバーシップロールID
-        internal_organization_membership_id:
+        internalOrganizationMembershipId:
           type: string
           format: uuid
           description: 内部組織メンバーシップID
-        internal_organization_role_id:
+        internalOrganizationRoleId:
           type: string
           format: uuid
           description: ロールID
-        internal_organization_role_name:
+        internalOrganizationRoleName:
           type: string
           description: ロール名
 

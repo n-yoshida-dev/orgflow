@@ -38,8 +38,16 @@ public class User {
     return id;
   }
 
+  public String getDisplayName() {
+    return displayName;
+  }
+
   public String getLoginId() {
     return loginId;
+  }
+
+  public String getMailAddress() {
+    return mailAddress;
   }
 
   public String getHashedPassword() {

@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-03-24
 
+> **決定**: request は「申請版」を表す単位として扱い、同一申請の系列を `request_series_id`、版を `version_no` で識別する（組に一意制約）。
+
 ## 背景
 
 - request は、差し戻し後に内容を修正して再申請される

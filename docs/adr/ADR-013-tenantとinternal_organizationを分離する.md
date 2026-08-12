@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-04-06
 
+> **決定**: tenant（契約主体かつデータ分離の最上位単位）と internal organization（tenant 内部の部門・課・チーム）を別概念として分離する。
+
 ## 背景
 
 これまで organization という 1 つの概念で、次の役割をまとめて扱っていた。

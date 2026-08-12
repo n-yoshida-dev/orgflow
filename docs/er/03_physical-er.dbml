@@ -87,32 +87,42 @@ Enum request_status {
 
 Table requests {
   id uuid [pk]
+
   tenant_id uuid [not null, ref: > tenants.id]
-  request_series_id uuid [not null, note: 'requestのバージョンを束ねるための親番号']
-  version_no int [not null, check: `version_no >= 1`, note: '採番はアプリ側で行う']
-  user_id uuid [not null, ref: > users.id, note: '自身の request の一覧表示の判定で使用']
-  status request_status [not null]
-  current_applied_approval_route_step_id uuid [null]
+  request_series_id uuid [not null, note: 'requestのバージョンを束ねる親番号']
+  version_no int [not null, check: `version_no >= 1`]
+
   applicant_user_id uuid [not null]
   internal_organization_id uuid [not null]
-  request_type text [not null,check:
-    `request_type IN (
-      'transportation_expenses',
-      'travel_expenses',
-      'equipment_purchase_expenses'
-    )`]
-  amount int [not null, check: `amount >= 0`, note: "申請金額"]
+
+  status request_status [not null]
+  current_applied_approval_route_step_id uuid [null]
+
+  request_type text [not null, check: `request_type IN (
+    'transportation_expenses',
+    'travel_expenses',
+    'equipment_purchase_expenses'
+  )`]
+
+  title varchar(100) [not null]
+  description text [null]
+  amount int [not null, check: `amount >= 0`, note: '申請金額。draftでは0を許容し、submit時に0円を拒否する']
+
   created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
   indexes {
-  	applicant_user_id
-  	internal_organization_id
-  	(internal_organization_id, status)
-    (request_series_id, version_no) [unique]
+    (tenant_id, request_series_id, version_no) [unique]
+    (tenant_id, applicant_user_id)
+    (tenant_id, internal_organization_id)
+    (tenant_id, internal_organization_id, status)
+    (tenant_id, status)
   }
 }
-Ref: requests.(id, current_applied_approval_route_step_id) > applied_approval_route_steps.(request_id, id)
+
 Ref: requests.(internal_organization_id, tenant_id) > internal_organizations.(id, tenant_id)
 Ref: requests.(tenant_id, applicant_user_id) > tenant_memberships.(tenant_id, user_id)
+Ref: requests.(id, current_applied_approval_route_step_id) > applied_approval_route_steps.(request_id, id)
 
 Enum approval_type {
   approved

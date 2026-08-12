@@ -2,6 +2,9 @@
 
 - Status: Accepted
 - Date: 2026-03-24
+- 最終追記: 2026-04-08
+
+> **決定**: request は `applicant_user_id` と `internal_organization_id` を直接持つ。ただし申請先に選べるのは、current tenant 内でその user が request 作成を許可する internal_organization_role を持つ所属先に限る。
 
 ## 背景
 

@@ -2,6 +2,9 @@
 
 - Status: Accepted
 - Date: 2026-05-03
+- 最終追記: 2026-06-04
+
+> **決定**: DB のテーブル作成と seed データ投入は Flyway migration で管理し、`schema.sql` / `data.sql` は使わない。
 
 ## 背景
 

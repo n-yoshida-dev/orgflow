@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-03-25
 
+> **決定**: `approval_policy` が `approval_route_id` を外部キーとして持つ（policy → route の参照方向）。
+
 ## 背景
 
 - `approval_policy`（承認ルートを決めるルール）と

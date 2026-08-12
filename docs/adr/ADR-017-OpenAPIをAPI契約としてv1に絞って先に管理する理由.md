@@ -1,9 +1,9 @@
-# docs/adr/ADR-017-OpenAPIをAPI契約としてv1に絞って先に管理する理由.md
-
 # ADR-017: OpenAPIをAPI契約としてv1に絞って先に管理する理由
 
 - Status: Accepted
 - Date: 2026-04-19
+
+> **決定**: Phase 1 では OpenAPI を API 契約として先に整備し、v1 は重要 endpoint に絞って管理する。
 
 ## 背景
 

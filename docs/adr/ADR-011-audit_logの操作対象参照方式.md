@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-03-25
 
+> **決定**: audit_log の操作対象は `target_type` / `target_id` で保持し FK は置かない。操作主体は `user_id` / `actor_organization_id` に加え、操作時点の表示用スナップショットを保持する。
+
 ## 背景
 
 - `audit_log` は `request`・`approval`・`user`・`approval_policy` など、複数の種別の概念を横断して操作を記録する必要がある

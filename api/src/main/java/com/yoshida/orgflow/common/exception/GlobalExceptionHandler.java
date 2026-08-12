@@ -94,4 +94,25 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(status).body(response);
   }
 
+  @ExceptionHandler(InternalOrganizationMembershipNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleInternalOrganizationMembershipNotFound(
+      InternalOrganizationMembershipNotFoundException ex) {
+
+    HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "指定された組織に所属していません");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
+  @ExceptionHandler(RequesterRoleNotGrantedException.class)
+  public ResponseEntity<ErrorResponse> handleRequesterRoleNotGranted(RequesterRoleNotGrantedException ex) {
+
+    HttpStatus status = HttpStatus.FORBIDDEN;
+
+    ErrorResponse response = new ErrorResponse(status.value(), "申請を作成する権限がありません");
+
+    return ResponseEntity.status(status).body(response);
+  }
+
 }

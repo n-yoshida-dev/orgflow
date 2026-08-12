@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-04-29
 
+> **決定**: ローカル開発DBは Docker Compose の PostgreSQL（DB名 / ユーザー名 / パスワードとも `orgflow`）で起動し、Spring Boot はローカル実行で `localhost:5432` へ接続する。
+
 ## 背景
 
 OrgFlow Phase 1 の Spring Boot 実装に入り、まず `/login` を含む認証系 API の最小土台を作り始めた。
