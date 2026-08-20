@@ -1,5 +1,7 @@
 # OrgFlow
 
+[![CI](https://github.com/n-yoshida-dev/orgflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/n-yoshida-dev/orgflow/actions/workflows/ci.yml)
+
 OrgFlow は、申請・承認フローを題材にした業務ワークフローアプリケーションです。
 
 現在は Phase 1 として、Java / Spring Boot による API 実装を中心に進めています。
