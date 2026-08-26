@@ -13,13 +13,13 @@ public class JwtUserIdExtractor {
     String subject = jwt.getSubject();
 
     if (subject == null || subject.isBlank()) {
-      throw new InvalidJwtSubjectException("JWT subject is missing", null);
+      throw new InvalidJwtSubjectException("JWT の subject がありません", null);
     }
 
     try {
       return UUID.fromString(subject);
     } catch (IllegalArgumentException e) {
-      throw new InvalidJwtSubjectException("JWT subject is not a valid UUID", e);
+      throw new InvalidJwtSubjectException("JWT の subject が UUID として不正です", e);
     }
   }
 }
