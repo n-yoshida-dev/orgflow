@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-05-03
-- 関連: ADR-018（ローカル開発DB） / ADR-029（seed password の保存形式） / ADR-028（tenant_memberships の構造）
+- 関連: ADR-018（ローカル開発DB） / ADR-029（seed password の保存形式） / ADR-028（tenant_memberships の構造） / ADR-034（seed の置き場所と適用範囲を更新する判断）
 
 > **決定**: DB のテーブル作成と seed データ投入は Flyway の versioned migration で管理し、`schema.sql` / `data.sql` は使わない。適用済みの migration ファイルは編集せず、新しい migration を追加して前に進める。
 
