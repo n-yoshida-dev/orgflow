@@ -14,13 +14,13 @@ public class JwtCurrentTenantIdExtractor {
     String tenantId = jwt.getClaim("current_tenant_id");
 
     if (tenantId == null || tenantId.isBlank()) {
-      throw new CurrentTenantNotSelectedException("JWT current_tenant_id claim is missing");
+      throw new CurrentTenantNotSelectedException("JWT の current_tenant_id claim がありません");
     }
 
     try {
       return UUID.fromString(tenantId);
     } catch (IllegalArgumentException e) {
-      throw new InvalidJwtCurrentTenantIdException("JWT current_tenant_id claim is not a valid UUID", e);
+      throw new InvalidJwtCurrentTenantIdException("JWT の current_tenant_id claim が UUID として不正です", e);
     }
   }
 

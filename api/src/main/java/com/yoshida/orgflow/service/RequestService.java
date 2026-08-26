@@ -43,7 +43,7 @@ public class RequestService {
     }
 
     if (!requestRepository.hasRequesterRole(userId, tenantId, input.internalOrganizationId())) {
-      throw new RequesterRoleNotGrantedException("ユーザーにはロールが付いていません。.");
+      throw new RequesterRoleNotGrantedException("ユーザーにはロールが付いていません");
     }
 
     User user = userRepository.findById(userId)
