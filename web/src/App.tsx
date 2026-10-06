@@ -11,6 +11,7 @@ function App() {
   const [tenantList, setTenantList] = useState<
     { tenantId: string; tenantName: string }[]
   >([]);
+  const [isDraft, setIsDraft] = useState(false);
 
   const loginClick = async () => {
     const res = await fetch("http://localhost:8080/login", {
@@ -51,6 +52,12 @@ function App() {
     localStorage.setItem("token", json.accessToken);
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    setIsDraft(false);
+  };
+
   if (token === "" || token === null) {
     return (
       <div>
@@ -58,6 +65,15 @@ function App() {
         <input value={password} onChange={(e) => setPassword(e.target.value)} />
         <button onClick={loginClick}>ログイン</button>
         <p>{token}</p>
+      </div>
+    );
+  }
+
+  if (isDraft === true) {
+    return (
+      <div>
+        <p>ドラフト作成</p>
+        <button onClick={logout}>ログアウト</button>
       </div>
     );
   }
@@ -78,14 +94,15 @@ function App() {
           </li>
         ))}
       </ul>
-      <p>{token}</p>
       <button
         onClick={() => {
-          (localStorage.removeItem("token"), setToken(""));
+          setIsDraft(true);
         }}
       >
-        ログアウト
+        申請
       </button>
+      <p>{token}</p>
+      <button onClick={logout}>ログアウト</button>
     </div>
   );
 }
