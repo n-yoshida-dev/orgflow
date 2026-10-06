@@ -12,6 +12,13 @@ function App() {
     { tenantId: string; tenantName: string }[]
   >([]);
   const [isDraft, setIsDraft] = useState(false);
+  const [title, setTitle] = useState("");
+  const [internalOrganizationId, setInternalOrganizationId] = useState("");
+  const [requestType, setRequestType] = useState("");
+  const [amount, setAmount] = useState("");
+  const [draftCreateStatus, setDraftCreateStatus] = useState(0);
+  const [draftId, setDraftId] = useState("");
+  const [draftStatus, setDraftStatus] = useState("");
 
   const loginClick = async () => {
     const res = await fetch("http://localhost:8080/login", {
@@ -58,6 +65,26 @@ function App() {
     setIsDraft(false);
   };
 
+  const draftRequest = async () => {
+    const res = await fetch("http://localhost:8080/requests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        title: title,
+        internalOrganizationId: internalOrganizationId,
+        requestType: requestType,
+        amount: Number(amount),
+      }),
+    });
+    const json = await res.json();
+    setDraftCreateStatus(res.status);
+    setDraftId(json.id);
+    setDraftStatus(json.status);
+  };
+
   if (token === "" || token === null) {
     return (
       <div>
@@ -73,6 +100,29 @@ function App() {
     return (
       <div>
         <p>ドラフト作成</p>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <br />
+        <input
+          value={internalOrganizationId}
+          onChange={(e) => setInternalOrganizationId(e.target.value)}
+        />
+        <br />
+        <select
+          value={requestType}
+          onChange={(e) => setRequestType(e.target.value)}
+        >
+          <option value="">選んでください</option>
+          <option value="transportation_expenses">交通費</option>
+          <option value="travel_expenses">旅費</option>
+          <option value="equipment_purchase_expenses">備品費</option>
+        </select>
+        <br />
+        <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <br />
+        <button onClick={draftRequest}>送信</button>
+        <p>{draftCreateStatus}</p>
+        <p>{draftId}</p>
+        <p>{draftStatus}</p>
         <button onClick={logout}>ログアウト</button>
       </div>
     );
